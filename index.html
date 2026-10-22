@@ -19,7 +19,7 @@
   }
   :root {
     --ink: #241a15; --ink2: #4a3728; --paper: #efe3c8; --paper2: #e3d3b2;
-    --warm: #9c4f12; --ember: #b8402a; --night: #1e3039; --moon: #b9d4dc;
+    --warm: #8c4610; --ember: #a8381f; --night: #1e3039; --moon: #b9d4dc;
     --mono: "Plex Mono", ui-monospace, monospace;
     --serif: "Cormorant", "Iowan Old Style", Georgia, serif;
   }
@@ -31,18 +31,15 @@
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
-  /* paper: a warm ground, a soft vignette and a real grain layer */
   .ground {
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background:
-      radial-gradient(120% 90% at 50% 0%, #f6ecd4 0%, #efe3c8 45%, #e2d0ac 100%);
+    background: radial-gradient(120% 90% at 50% 0%, #f6ecd4 0%, #efe3c8 45%, #e2d0ac 100%);
   }
   .ground::after {
     content: ""; position: absolute; inset: -10%;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
     background-size: 220px 220px; opacity: .12; mix-blend-mode: multiply;
   }
-  /* dust in the room, always moving */
   canvas#dust { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .55; }
 
   main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 4vh 22px 9vh; }
@@ -50,12 +47,14 @@
   .eyebrow {
     font-family: var(--mono); font-size: 12.5px; letter-spacing: .3em; text-transform: uppercase;
     color: var(--warm); display: flex; gap: 14px; align-items: center; justify-content: center;
+    flex-wrap: nowrap; white-space: nowrap;
   }
-  .eyebrow .rule { width: 54px; height: 1px; background: currentColor; opacity: .5; }
+  .eyebrow .rule { width: 54px; height: 1px; background: currentColor; opacity: .5; flex: 0 0 auto; }
 
   h1 {
     font-size: clamp(46px, 10.4vw, 116px); line-height: .92; font-weight: 600;
     letter-spacing: -.018em; text-align: center; margin: .18em 0 .06em;
+    text-wrap: balance;
   }
   h1 .w { display: inline-block; }
   h1 .w1 { color: var(--ink); }
@@ -64,20 +63,22 @@
 
   .standfirst {
     text-align: center; font-size: clamp(17px, 2.3vw, 23px); line-height: 1.45;
-    color: var(--ink2); max-width: 34ch; margin: 18px auto 0; font-weight: 400;
+    color: var(--ink2); max-width: 30ch; margin: 18px auto 0; font-weight: 400;
+    text-wrap: balance;
   }
 
   .hairline { height: 1.5px; background: var(--ink); width: 0; margin: 24px auto 22px; opacity: .85; }
 
+  /* ── player: the film, in a drawn frame, with its own quiet bar ───────── */
   .player {
     position: relative; border: 2.5px solid var(--ink); background: var(--night);
     box-shadow: 10px 12px 0 rgba(36, 26, 21, .13);
     aspect-ratio: 16 / 9; overflow: hidden;
   }
-  .player video { display: block; width: 100%; height: 100%; object-fit: cover; background: var(--night); }
+  .player video { display: block; width: 100%; height: 100%; object-fit: cover; background: var(--night); cursor: pointer; }
   .player .playbtn {
     position: absolute; inset: 0; display: grid; place-items: center; cursor: pointer;
-    background: radial-gradient(50% 60% at 50% 50%, rgba(10,16,20,.18), rgba(10,16,20,.44));
+    background: radial-gradient(50% 60% at 50% 50%, rgba(10,16,20,.16), rgba(10,16,20,.42));
     border: 0; padding: 0; transition: opacity .25s ease;
   }
   .player .playbtn span {
@@ -89,11 +90,39 @@
   .player .playbtn:hover span { transform: scale(1.06); }
   .player .playbtn svg { width: 34px; height: 34px; margin-left: 5px; }
   .player.playing .playbtn { opacity: 0; pointer-events: none; }
-  .player figcaption {
-    position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 14px;
-    font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
-    color: rgba(247,236,210,.92); background: linear-gradient(transparent, rgba(10,16,20,.55));
-    pointer-events: none;
+
+  .bar {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px 9px;
+    background: linear-gradient(transparent, rgba(10,16,20,.72) 55%);
+    opacity: 0; transition: opacity .2s ease;
+  }
+  .player:hover .bar, .player:focus-within .bar, .player.paused .bar { opacity: 1; }
+  .bar button {
+    background: none; border: 0; padding: 6px; cursor: pointer; color: var(--paper);
+    display: grid; place-items: center; min-width: 34px; min-height: 34px;
+  }
+  .bar button svg { width: 18px; height: 18px; fill: currentColor; }
+  .bar .tc {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; color: rgba(247,236,210,.9);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .track {
+    position: relative; flex: 1 1 auto; height: 30px; cursor: pointer;
+    display: flex; align-items: center; touch-action: none;
+  }
+  .track::before { content: ""; position: absolute; left: 0; right: 0; height: 2px; background: rgba(247,236,210,.32); }
+  .track .fill { position: absolute; left: 0; height: 2px; width: 0; background: #ffc65c; }
+  .track .knob {
+    position: absolute; left: 0; width: 11px; height: 11px; margin-left: -5.5px; border-radius: 50%;
+    background: var(--paper); border: 1.5px solid var(--ink);
+  }
+  .track:focus-visible { outline: 2px solid #ffc65c; outline-offset: 4px; }
+
+  .playercap {
+    display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+    color: #55402f; margin: 12px 2px 0;
   }
 
   .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 26px; margin: 26px 0 0; }
@@ -107,27 +136,64 @@
     float: left; font-size: 3.6em; line-height: .82; padding: .06em .1em 0 0; color: var(--ember); font-weight: 600;
   }
   .prose em { font-style: italic; }
-  .prose a { color: var(--ember); text-decoration: none; border-bottom: 1px solid rgba(184,64,42,.4); }
+  .prose a { color: var(--ember); text-decoration: none; border-bottom: 1px solid rgba(168,56,31,.45); }
 
+  /* ── storyboard: real cells, real captions, click one to jump the film ── */
   .strip { margin: 46px 0 0; }
-  .strip h2 { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--warm); margin: 0 0 10px; font-weight: 500; }
-  .strip img { display: block; width: 100%; border-top: 1.5px solid rgba(36,26,21,.45); border-bottom: 1.5px solid rgba(36,26,21,.45); }
+  .strip h2 { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--warm); margin: 0 0 4px; font-weight: 500; }
+  .strip .hint { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; color: #6a5340; margin: 0 0 14px; }
+  .sb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 14px; }
+  .sb .cell {
+    display: block; padding: 0; border: 0; background: none; cursor: pointer; text-align: left;
+    font: inherit; color: inherit;
+  }
+  .sb .cell img {
+    display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
+    border: 1.5px solid rgba(36,26,21,.55); background: var(--night);
+    transition: transform .25s cubic-bezier(.2,.9,.25,1), border-color .2s ease;
+  }
+  .sb .cell:hover img, .sb .cell:focus-visible img { transform: translateY(-2px); border-color: var(--ink); }
+  .sb .cell:focus-visible { outline: 2px solid var(--warm); outline-offset: 3px; }
+  .sb .mark {
+    display: block; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em;
+    color: var(--ember); margin: 7px 0 1px;
+  }
+  .sb .label { display: block; font-size: 15.5px; line-height: 1.3; color: #3f2f22; }
+  .strip .sheet { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; margin: 16px 0 0; }
+  .strip .sheet a { color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(36,26,21,.35); }
 
   footer {
     margin: 54px 0 0; padding-top: 18px; border-top: 1.5px solid rgba(36,26,21,.3);
     display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: baseline; justify-content: space-between;
     font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #55402f;
   }
-  footer a { color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(36,26,21,.35); }
+  footer a { color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(36,26,21,.35); padding: 6px 0; display: inline-block; }
   footer a:hover { color: var(--ember); border-color: currentColor; }
+
+  /* ── entrances: the page assembles itself the way the film does ───────── */
+  .rise { opacity: 0; transform: translateY(16px); transition: opacity .7s cubic-bezier(.2,.8,.2,1), transform .8s cubic-bezier(.2,.8,.2,1); }
+  .rise.in { opacity: 1; transform: none; }
 
   @media (max-width: 760px) {
     main { padding: 4.5vh 16px 7vh; }
-    .eyebrow { font-size: 10.5px; letter-spacing: .22em; }
+    .eyebrow { font-size: 10px; letter-spacing: .16em; gap: 8px; }
     .notes { grid-template-columns: 1fr; gap: 14px; }
     .player .playbtn span { width: 74px; height: 74px; }
+    .player .playbtn svg { width: 26px; height: 26px; }
     .prose { margin-top: 32px; }
-    footer { font-size: 10px; }
+    .sb { grid-template-columns: repeat(2, 1fr); gap: 14px 12px; }
+    .sb .label { font-size: 14.5px; }
+    .bar { padding: 8px 8px 7px; gap: 6px; }
+    .bar button { min-width: 44px; min-height: 44px; padding: 10px; }
+    .track { height: 44px; }
+    .bar .tc { font-size: 10.5px; }
+    .playercap { font-size: 10.5px; letter-spacing: .12em; }
+    footer { font-size: 12px; }
+    footer a { padding: 10px 0; }
+  }
+  @media (max-width: 440px) {
+    .eyebrow .rule { display: none; }
+    .eyebrow { font-size: 9.5px; letter-spacing: .12em; }
   }
 </style>
 </head>
@@ -144,31 +210,120 @@
 
   <div class="hairline" id="rule"></div>
 
-  <figure class="player" id="player" style="margin:0">
-    <video id="film" playsinline preload="metadata" poster="media/poster.jpg" controls>
+  <figure class="player paused" id="player" style="margin:0">
+    <video id="film" playsinline preload="metadata" poster="media/poster.jpg">
       <source src="media/film-720p.mp4" type="video/mp4">
       Your browser cannot play this film. <a href="media/film-720p.mp4">Download it (MP4, 720p)</a>.
     </video>
     <button class="playbtn" id="playbtn" aria-label="Play the film">
-      <span><svg viewBox="0 0 24 24" fill="#241a15"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+      <span><svg viewBox="0 0 24 24" fill="#241a15" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span>
     </button>
-    <figcaption>50 s · 24 fps · drawn frame by frame in code · sound on</figcaption>
+    <div class="bar">
+      <button id="pp" aria-label="Play">
+        <svg id="ppIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+      </button>
+      <span class="tc" id="tc">0:00 / 0:50</span>
+      <div class="track" id="track" role="slider" tabindex="0" aria-label="Seek through the film"
+           aria-valuemin="0" aria-valuemax="50" aria-valuenow="0" aria-valuetext="0:00">
+        <div class="fill" id="fill"></div>
+        <div class="knob" id="knob"></div>
+      </div>
+      <button id="fs" aria-label="Fullscreen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5v2H6v3H4zm16 0h-2V6h-3V4h5v5zM4 15h2v3h3v2H4v-5zm14 3v-3h2v5h-5v-2h3z"/></svg>
+      </button>
+    </div>
   </figure>
+  <div class="playercap"><span>50 s · 24 fps · 1,200 frames</span><span>Every frame drawn in code · sound on</span></div>
 
   <div class="notes">
-    <div class="note"><h3>Drawn, not generated</h3><p>Every frame is canvas-2D ink on paper grain. No footage, no AI images, no 3D.</p></div>
-    <div class="note"><h3>Cel boil</h3><p>Line and fill are re-inked each frame from three stored drawings, the way a hand-inked cel breathes.</p></div>
-    <div class="note"><h3>Music</h3><p>“Bright Bouncy Acoustic” by Music for Creators — CC BY 4.0, cut on the bar line.</p></div>
+    <div class="note rise"><h3>Drawn, not generated</h3><p>Every frame is canvas-2D ink on paper grain. No footage, no AI images, no 3D.</p></div>
+    <div class="note rise"><h3>Cel boil</h3><p>Line and fill are re-inked each frame from three stored drawings, the way a hand-inked cel breathes.</p></div>
+    <div class="note rise"><h3>Music</h3><p>“Bright Bouncy Acoustic” by Music for Creators — CC BY 4.0, cut on the bar line.</p></div>
   </div>
 
   <div class="prose">
-    <p>It is a small film about a small light. The lamp has no face: it acts with its posture, the angle of its shade and the shape of the beam, the way a good lamp does. It practises its sweep at night, gets heckled by a moth, switches itself off in a huff — and then notices that the room was never dark to begin with.</p>
-    <p>Everything you see is drawn by <em>src/scene.js</em>: the room, the brass, the window, the moon, the moth, the dust and the light. The film is 1,200 frames, each one a pure function of time, so any frame can be re-rendered exactly — the title card included.</p>
+    <p class="rise">It is a small film about a small light. The lamp has no face: it acts with its posture, the angle of its shade and the shape of the beam, the way a good lamp does. It practises its sweep at night, gets heckled by a moth, switches itself off in a huff — and then notices that the room was never dark to begin with.</p>
+    <p class="rise">Everything you see is drawn by <em>src/scene.js</em>: the room, the brass, the window, the moon, the moth, the dust and the light. The film is 1,200 frames, each one a pure function of time, so any frame can be re-rendered exactly — the title card included.</p>
   </div>
 
   <div class="strip">
-    <h2>Storyboard</h2>
-    <a href="media/storyboard.jpg"><img src="media/storyboard.jpg" alt="Storyboard: fourteen key frames from The Little Lighthouse with timecodes." loading="lazy"></a>
+    <h2 class="rise">Storyboard</h2>
+    <p class="hint rise">Fourteen beats. Click any frame to jump the film to that moment.</p>
+    <div class="sb" id="sb">
+      <!--SB-->
+      <button class="cell" data-t="1.2" aria-label="Jump to 0:01.2: SC.1  the room, asleep">
+        <img src="media/sb/f01.jpg" alt="SC.1  the room, asleep at 0:01.2" loading="lazy" width="560" height="315">
+        <span class="mark">0:01.2</span>
+        <span class="label">SC.1  the room, asleep</span>
+      </button>
+      <button class="cell" data-t="4.2" aria-label="Jump to 0:04.2: the switch — light blooms">
+        <img src="media/sb/f02.jpg" alt="the switch — light blooms at 0:04.2" loading="lazy" width="560" height="315">
+        <span class="mark">0:04.2</span>
+        <span class="label">the switch — light blooms</span>
+      </button>
+      <button class="cell" data-t="7.2" aria-label="Jump to 0:07.2: practising the sweep">
+        <img src="media/sb/f03.jpg" alt="practising the sweep at 0:07.2" loading="lazy" width="560" height="315">
+        <span class="mark">0:07.2</span>
+        <span class="label">practising the sweep</span>
+      </button>
+      <button class="cell" data-t="11.2" aria-label="Jump to 0:11.2: close: proud head, hot beam">
+        <img src="media/sb/f04.jpg" alt="close: proud head, hot beam at 0:11.2" loading="lazy" width="560" height="315">
+        <span class="mark">0:11.2</span>
+        <span class="label">close: proud head, hot beam</span>
+      </button>
+      <button class="cell" data-t="14.6" aria-label="Jump to 0:14.6: raking its own wall">
+        <img src="media/sb/f05.jpg" alt="raking its own wall at 0:14.6" loading="lazy" width="560" height="315">
+        <span class="mark">0:14.6</span>
+        <span class="label">raking its own wall</span>
+      </button>
+      <button class="cell" data-t="16.7" aria-label="Jump to 0:16.7: the moth arrives">
+        <img src="media/sb/f06.jpg" alt="the moth arrives at 0:16.7" loading="lazy" width="560" height="315">
+        <span class="mark">0:16.7</span>
+        <span class="label">the moth arrives</span>
+      </button>
+      <button class="cell" data-t="19.6" aria-label="Jump to 0:19.6: the lamp turns away">
+        <img src="media/sb/f07.jpg" alt="the lamp turns away at 0:19.6" loading="lazy" width="560" height="315">
+        <span class="mark">0:19.6</span>
+        <span class="label">the lamp turns away</span>
+      </button>
+      <button class="cell" data-t="22.4" aria-label="Jump to 0:22.4: shake-off">
+        <img src="media/sb/f08.jpg" alt="shake-off at 0:22.4" loading="lazy" width="560" height="315">
+        <span class="mark">0:22.4</span>
+        <span class="label">shake-off</span>
+      </button>
+      <button class="cell" data-t="25.3" aria-label="Jump to 0:25.3: deadpan: beam into the lens">
+        <img src="media/sb/f09.jpg" alt="deadpan: beam into the lens at 0:25.3" loading="lazy" width="560" height="315">
+        <span class="mark">0:25.3</span>
+        <span class="label">deadpan: beam into the lens</span>
+      </button>
+      <button class="cell" data-t="27.4" aria-label="Jump to 0:27.4: click off — the huff">
+        <img src="media/sb/f10.jpg" alt="click off — the huff at 0:27.4" loading="lazy" width="560" height="315">
+        <span class="mark">0:27.4</span>
+        <span class="label">click off — the huff</span>
+      </button>
+      <button class="cell" data-t="30.4" aria-label="Jump to 0:30.4: darkness, holding">
+        <img src="media/sb/f11.jpg" alt="darkness, holding at 0:30.4" loading="lazy" width="560" height="315">
+        <span class="mark">0:30.4</span>
+        <span class="label">darkness, holding</span>
+      </button>
+      <button class="cell" data-t="33.6" aria-label="Jump to 0:33.6: moonlight, dead lamp">
+        <img src="media/sb/f12.jpg" alt="moonlight, dead lamp at 0:33.6" loading="lazy" width="560" height="315">
+        <span class="mark">0:33.6</span>
+        <span class="label">moonlight, dead lamp</span>
+      </button>
+      <button class="cell" data-t="37.6" aria-label="Jump to 0:37.6: the moon catches the shade">
+        <img src="media/sb/f13.jpg" alt="the moon catches the shade at 0:37.6" loading="lazy" width="560" height="315">
+        <span class="mark">0:37.6</span>
+        <span class="label">the moon catches the shade</span>
+      </button>
+      <button class="cell" data-t="47.2" aria-label="Jump to 0:47.2: the end card">
+        <img src="media/sb/f14.jpg" alt="the end card at 0:47.2" loading="lazy" width="560" height="315">
+        <span class="mark">0:47.2</span>
+        <span class="label">the end card</span>
+      </button>
+      <!--/SB-->
+    </div>
+    <p class="sheet"><a href="media/storyboard.jpg">The whole sheet as one image (JPG)</a></p>
   </div>
 
   <footer>
@@ -182,13 +337,92 @@
   const v = document.getElementById('film');
   const player = document.getElementById('player');
   const btn = document.getElementById('playbtn');
-  const start = () => {
-    player.classList.add('playing');
-    v.play().catch(() => {});
+  const pp = document.getElementById('pp');
+  const ppIcon = document.getElementById('ppIcon');
+  const track = document.getElementById('track');
+  const fill = document.getElementById('fill');
+  const knob = document.getElementById('knob');
+  const tc = document.getElementById('tc');
+  const fs = document.getElementById('fs');
+
+  const PLAY = 'M8 5.5v13l11-6.5z';
+  const PAUSE = 'M7 5h4v14H7zm6 0h4v14h-4z';
+  const DUR = 50;
+
+  const fmt = (x) => {
+    x = Math.max(0, Math.min(DUR, x || 0));
+    return Math.floor(x / 60) + ':' + String(Math.floor(x % 60)).padStart(2, '0');
   };
-  btn.addEventListener('click', start);
-  v.addEventListener('pause', () => { player.classList.remove('playing'); });
-  v.addEventListener('ended', () => { player.classList.remove('playing'); });
+  const paint = () => {
+    const p = (v.currentTime || 0) / (v.duration || DUR);
+    fill.style.width = (p * 100) + '%';
+    knob.style.left = (p * 100) + '%';
+    tc.textContent = fmt(v.currentTime) + ' / ' + fmt(v.duration || DUR);
+    track.setAttribute('aria-valuenow', String(Math.round(v.currentTime || 0)));
+    track.setAttribute('aria-valuetext', fmt(v.currentTime));
+    const paused = v.paused;
+    pp.setAttribute('aria-label', paused ? 'Play' : 'Pause');
+    ppIcon.innerHTML = '<path d="' + (paused ? PLAY : PAUSE) + '"/>';
+    player.classList.toggle('paused', paused);
+    player.classList.toggle('playing', !paused);
+  };
+  const toggle = () => { if (v.paused) v.play().catch(() => {}); else v.pause(); };
+
+  btn.addEventListener('click', toggle);
+  pp.addEventListener('click', toggle);
+  v.addEventListener('click', toggle);
+  v.addEventListener('timeupdate', paint);
+  v.addEventListener('loadedmetadata', paint);
+  v.addEventListener('play', paint);
+  v.addEventListener('pause', paint);
+  v.addEventListener('ended', paint);
+
+  // scrub: pointer + keyboard, on the hairline track
+  const seekTo = (clientX) => {
+    const r = track.getBoundingClientRect();
+    const p = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    v.currentTime = p * (v.duration || DUR);
+    paint();
+  };
+  let dragging = false;
+  track.addEventListener('pointerdown', (e) => { dragging = true; track.setPointerCapture(e.pointerId); seekTo(e.clientX); });
+  track.addEventListener('pointermove', (e) => { if (dragging) seekTo(e.clientX); });
+  track.addEventListener('pointerup', () => { dragging = false; });
+  track.addEventListener('keydown', (e) => {
+    const d = e.shiftKey ? 5 : 1;
+    if (e.key === 'ArrowRight') { v.currentTime = Math.min(DUR, v.currentTime + d); paint(); e.preventDefault(); }
+    if (e.key === 'ArrowLeft') { v.currentTime = Math.max(0, v.currentTime - d); paint(); e.preventDefault(); }
+    if (e.key === 'Home') { v.currentTime = 0; paint(); e.preventDefault(); }
+    if (e.key === 'End') { v.currentTime = DUR; paint(); e.preventDefault(); }
+  });
+
+  fs.addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (player.requestFullscreen) player.requestFullscreen().catch(() => {});
+    else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+  });
+
+  // storyboard: click a cell to jump the film there and play
+  document.querySelectorAll('#sb .cell').forEach((cell) => {
+    cell.addEventListener('click', () => {
+      v.currentTime = parseFloat(cell.dataset.t);
+      v.play().catch(() => {});
+      player.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  // entrances: every section assembles once, then stays
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((rows) => {
+      rows.forEach((r) => { if (r.isIntersecting) { r.target.classList.add('in'); io.unobserve(r.target); } });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+    document.querySelectorAll('.rise').forEach((el, i) => {
+      el.style.transitionDelay = (i % 4) * 70 + 'ms';
+      io.observe(el);
+    });
+  } else {
+    document.querySelectorAll('.rise').forEach((el) => el.classList.add('in'));
+  }
 
   // the title writes itself on in the same order the film does: ink, then light
   const words = [...document.querySelectorAll('h1 .w')];
@@ -232,6 +466,7 @@
     requestAnimationFrame(tick);
   };
   tick();
+  paint();
 })();
 </script>
 </body>
