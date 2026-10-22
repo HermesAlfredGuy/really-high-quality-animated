@@ -256,6 +256,9 @@ out = 'out/audio.wav'
 import os
 os.makedirs('out', exist_ok=True)
 mix.astype(np.float32).tofile('/tmp/mix.f32')
+# true-peak safety: a 4x-oversampled limiter, so the AAC encode cannot inter-sample clip
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '2',
-                '-i', '/tmp/mix.f32', '-c:a', 'pcm_s24le', out], check=True)
+                '-i', '/tmp/mix.f32',
+                '-af', 'aresample=192000,alimiter=limit=0.70:attack=3:release=60:level=false,aresample=48000:resampler=soxr',
+                '-c:a', 'pcm_s24le', out], check=True)
 print('wrote', out)
