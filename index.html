@@ -76,6 +76,8 @@
     aspect-ratio: 16 / 9; overflow: hidden;
   }
   .player video { display: block; width: 100%; height: 100%; object-fit: cover; background: var(--night); cursor: pointer; }
+  .player .bed { position: absolute; inset: 0; z-index: 1; pointer-events: none; transition: opacity .45s ease; }
+  .player[data-started="1"] .bed { opacity: 0; }
   .player .playbtn {
     position: absolute; inset: 0; display: grid; place-items: center; cursor: pointer;
     background: radial-gradient(50% 60% at 50% 50%, rgba(10,16,20,.16), rgba(10,16,20,.42));
@@ -128,7 +130,7 @@
   .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 26px; margin: 26px 0 0; }
   .note { border-top: 1.5px solid rgba(36,26,21,.32); padding-top: 9px; }
   .note h3 { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--warm); margin: 0 0 5px; font-weight: 500; }
-  .note p { margin: 0; font-size: 17px; line-height: 1.42; color: #3f2f22; }
+  .note p { margin: 0; font-size: 17.5px; font-weight: 500; line-height: 1.42; color: #3f2f22; }
 
   .prose { margin: 44px auto 0; max-width: 62ch; }
   .prose p { font-size: clamp(17px, 2.1vw, 20.5px); line-height: 1.58; color: #3a2b20; margin: 0 0 1.05em; }
@@ -168,10 +170,12 @@
     display: block; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em;
     color: var(--ember); margin: 7px 0 1px;
   }
-  .sb .label { display: block; font-size: 15.5px; line-height: 1.3; color: #3f2f22; }
+  .sb .label { display: block; font-size: 16.8px; line-height: 1.3; color: #3f2f22; }
   .strip .sheet { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; margin: 16px 0 0; }
   .strip .sheet a { color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(36,26,21,.35); }
 
+  footer .who { white-space: nowrap; }
+  @media (max-width: 520px) { footer .who { white-space: normal; } footer { gap: 6px; } }
   footer {
     margin: 54px 0 0; padding-top: 18px; border-top: 1.5px solid rgba(36,26,21,.3);
     display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: baseline; justify-content: space-between;
@@ -192,7 +196,7 @@
     .player .playbtn svg { width: 26px; height: 26px; }
     .prose { margin-top: 32px; }
     .sb { grid-template-columns: repeat(2, 1fr); gap: 14px 12px; }
-    .sb .label { font-size: 14.5px; }
+    .sb .label { font-size: 15.5px; }
     .bar { padding: 8px 8px 7px; gap: 6px; }
     .bar button { min-width: 44px; min-height: 44px; padding: 10px; }
     .track { height: 44px; }
@@ -220,7 +224,8 @@
 
   <div class="hairline" id="rule"></div>
 
-  <figure class="player paused" id="player" style="margin:0">
+  <figure class="player paused" id="player" data-started="0" style="margin:0">
+    <video class="bed" id="bed" src="media/hero-loop.mp4" poster="media/poster.jpg" muted loop playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"></video>
     <video id="film" playsinline preload="metadata" poster="media/poster.jpg">
       <source src="media/film-720p.mp4" type="video/mp4">
       Your browser cannot play this film. <a href="media/film-720p.mp4">Download it (MP4, 720p)</a>.
@@ -262,75 +267,75 @@
     <p class="hint rise">Fourteen beats. Click any frame to jump the film to that moment.</p>
     <div class="sb" id="sb">
       <!--SB-->
-      <button class="cell" data-t="1.2" aria-label="Jump to 0:01.2: SC.1  the room, asleep">
-        <img src="media/sb/f01.jpg" alt="SC.1  the room, asleep at 0:01.2" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="1.2" aria-label="Jump to 0:01.2: SC 01 — the room, asleep">
+        <img src="media/sb/f01.jpg" alt="SC 01 — the room, asleep at 0:01.2" loading="lazy" width="560" height="315">
         <span class="mark">0:01.2</span>
-        <span class="label">SC.1  the room, asleep</span>
+        <span class="label">SC 01 — the room, asleep</span>
       </button>
-      <button class="cell" data-t="4.2" aria-label="Jump to 0:04.2: the switch — light blooms">
-        <img src="media/sb/f02.jpg" alt="the switch — light blooms at 0:04.2" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="4.2" aria-label="Jump to 0:04.2: SC 02 — the switch: light blooms">
+        <img src="media/sb/f02.jpg" alt="SC 02 — the switch: light blooms at 0:04.2" loading="lazy" width="560" height="315">
         <span class="mark">0:04.2</span>
-        <span class="label">the switch — light blooms</span>
+        <span class="label">SC 02 — the switch: light blooms</span>
       </button>
-      <button class="cell" data-t="7.2" aria-label="Jump to 0:07.2: practising the sweep">
-        <img src="media/sb/f03.jpg" alt="practising the sweep at 0:07.2" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="7.2" aria-label="Jump to 0:07.2: SC 03 — practising the sweep">
+        <img src="media/sb/f03.jpg" alt="SC 03 — practising the sweep at 0:07.2" loading="lazy" width="560" height="315">
         <span class="mark">0:07.2</span>
-        <span class="label">practising the sweep</span>
+        <span class="label">SC 03 — practising the sweep</span>
       </button>
-      <button class="cell" data-t="11.2" aria-label="Jump to 0:11.2: close: proud head, hot beam">
-        <img src="media/sb/f04.jpg" alt="close: proud head, hot beam at 0:11.2" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="11.2" aria-label="Jump to 0:11.2: SC 04 — close: a proud head, a hot beam">
+        <img src="media/sb/f04.jpg" alt="SC 04 — close: a proud head, a hot beam at 0:11.2" loading="lazy" width="560" height="315">
         <span class="mark">0:11.2</span>
-        <span class="label">close: proud head, hot beam</span>
+        <span class="label">SC 04 — close: a proud head, a hot beam</span>
       </button>
-      <button class="cell" data-t="14.6" aria-label="Jump to 0:14.6: raking its own wall">
-        <img src="media/sb/f05.jpg" alt="raking its own wall at 0:14.6" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="14.6" aria-label="Jump to 0:14.6: SC 05 — raking its own wall">
+        <img src="media/sb/f05.jpg" alt="SC 05 — raking its own wall at 0:14.6" loading="lazy" width="560" height="315">
         <span class="mark">0:14.6</span>
-        <span class="label">raking its own wall</span>
+        <span class="label">SC 05 — raking its own wall</span>
       </button>
-      <button class="cell" data-t="16.7" aria-label="Jump to 0:16.7: the moth arrives">
-        <img src="media/sb/f06.jpg" alt="the moth arrives at 0:16.7" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="16.7" aria-label="Jump to 0:16.7: SC 06 — the moth arrives">
+        <img src="media/sb/f06.jpg" alt="SC 06 — the moth arrives at 0:16.7" loading="lazy" width="560" height="315">
         <span class="mark">0:16.7</span>
-        <span class="label">the moth arrives</span>
+        <span class="label">SC 06 — the moth arrives</span>
       </button>
-      <button class="cell" data-t="19.6" aria-label="Jump to 0:19.6: the lamp turns away">
-        <img src="media/sb/f07.jpg" alt="the lamp turns away at 0:19.6" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="19.6" aria-label="Jump to 0:19.6: SC 07 — the lamp turns away">
+        <img src="media/sb/f07.jpg" alt="SC 07 — the lamp turns away at 0:19.6" loading="lazy" width="560" height="315">
         <span class="mark">0:19.6</span>
-        <span class="label">the lamp turns away</span>
+        <span class="label">SC 07 — the lamp turns away</span>
       </button>
-      <button class="cell" data-t="22.4" aria-label="Jump to 0:22.4: shake-off">
-        <img src="media/sb/f08.jpg" alt="shake-off at 0:22.4" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="22.4" aria-label="Jump to 0:22.4: SC 08 — the shake-off">
+        <img src="media/sb/f08.jpg" alt="SC 08 — the shake-off at 0:22.4" loading="lazy" width="560" height="315">
         <span class="mark">0:22.4</span>
-        <span class="label">shake-off</span>
+        <span class="label">SC 08 — the shake-off</span>
       </button>
-      <button class="cell" data-t="25.3" aria-label="Jump to 0:25.3: deadpan: beam into the lens">
-        <img src="media/sb/f09.jpg" alt="deadpan: beam into the lens at 0:25.3" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="25.3" aria-label="Jump to 0:25.3: SC 09 — deadpan: the beam into the lens">
+        <img src="media/sb/f09.jpg" alt="SC 09 — deadpan: the beam into the lens at 0:25.3" loading="lazy" width="560" height="315">
         <span class="mark">0:25.3</span>
-        <span class="label">deadpan: beam into the lens</span>
+        <span class="label">SC 09 — deadpan: the beam into the lens</span>
       </button>
-      <button class="cell" data-t="27.4" aria-label="Jump to 0:27.4: click off — the huff">
-        <img src="media/sb/f10.jpg" alt="click off — the huff at 0:27.4" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="27.4" aria-label="Jump to 0:27.4: SC 10 — click off: the huff">
+        <img src="media/sb/f10.jpg" alt="SC 10 — click off: the huff at 0:27.4" loading="lazy" width="560" height="315">
         <span class="mark">0:27.4</span>
-        <span class="label">click off — the huff</span>
+        <span class="label">SC 10 — click off: the huff</span>
       </button>
-      <button class="cell" data-t="30.4" aria-label="Jump to 0:30.4: darkness, holding">
-        <img src="media/sb/f11.jpg" alt="darkness, holding at 0:30.4" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="30.4" aria-label="Jump to 0:30.4: SC 11 — darkness, holding">
+        <img src="media/sb/f11.jpg" alt="SC 11 — darkness, holding at 0:30.4" loading="lazy" width="560" height="315">
         <span class="mark">0:30.4</span>
-        <span class="label">darkness, holding</span>
+        <span class="label">SC 11 — darkness, holding</span>
       </button>
-      <button class="cell" data-t="33.6" aria-label="Jump to 0:33.6: moonlight, dead lamp">
-        <img src="media/sb/f12.jpg" alt="moonlight, dead lamp at 0:33.6" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="33.6" aria-label="Jump to 0:33.6: SC 12 — moonlight on a dead lamp">
+        <img src="media/sb/f12.jpg" alt="SC 12 — moonlight on a dead lamp at 0:33.6" loading="lazy" width="560" height="315">
         <span class="mark">0:33.6</span>
-        <span class="label">moonlight, dead lamp</span>
+        <span class="label">SC 12 — moonlight on a dead lamp</span>
       </button>
-      <button class="cell" data-t="37.6" aria-label="Jump to 0:37.6: the moon catches the shade">
-        <img src="media/sb/f13.jpg" alt="the moon catches the shade at 0:37.6" loading="lazy" width="560" height="315">
+      <button class="cell" data-t="37.6" aria-label="Jump to 0:37.6: SC 13 — the moon catches the shade">
+        <img src="media/sb/f13.jpg" alt="SC 13 — the moon catches the shade at 0:37.6" loading="lazy" width="560" height="315">
         <span class="mark">0:37.6</span>
-        <span class="label">the moon catches the shade</span>
+        <span class="label">SC 13 — the moon catches the shade</span>
       </button>
-      <button class="cell" data-t="47.2" aria-label="Jump to 0:47.2: the end card">
-        <img src="media/sb/f14.jpg" alt="the end card at 0:47.2" loading="lazy" width="560" height="315">
-        <span class="mark">0:47.2</span>
-        <span class="label">the end card</span>
+      <button class="cell" data-t="47.6" aria-label="Jump to 0:47.6: SC 14 — the end card">
+        <img src="media/sb/f14.jpg" alt="SC 14 — the end card at 0:47.6" loading="lazy" width="560" height="315">
+        <span class="mark">0:47.6</span>
+        <span class="label">SC 14 — the end card</span>
       </button>
       <!--/SB-->
     </div>
@@ -338,7 +343,7 @@
   </div>
 
   <footer>
-    <span>Written, drawn &amp; scored in code · Hermes Studio · 2026</span>
+    <span class="who">Written, drawn &amp; scored in code · Hermes Studio · 2026</span>
     <span><a href="media/film-1080p.mp4">1080p master</a> · <a href="media/film-720p.mp4">720p share</a></span>
   </footer>
 </main>
@@ -356,6 +361,7 @@
   const tc = document.getElementById('tc');
   const fs = document.getElementById('fs');
 
+  const bed = document.getElementById('bed');
   const cellsNow = [...document.querySelectorAll('#sb .cell')];
   const PLAY = 'M8 5.5v13l11-6.5z';
   const PAUSE = 'M7 5h4v14H7zm6 0h4v14h-4z';
@@ -376,6 +382,8 @@
     pp.setAttribute('aria-label', paused ? 'Play' : 'Pause');
     ppIcon.innerHTML = '<path d="' + (paused ? PLAY : PAUSE) + '"/>';
     player.classList.toggle('paused', paused);
+    player.dataset.started = (v.currentTime > 0.05 || !paused) ? '1' : '0';
+    if (bed) { if (player.dataset.started === '0') { const p = bed.play(); if (p) p.catch(() => {}); } else bed.pause(); }
     if (cellsNow.length) {
       const t = v.currentTime || 0;
       let idx = -1;
@@ -425,7 +433,6 @@
     cell.addEventListener('click', () => {
       v.currentTime = parseFloat(cell.dataset.t);
       v.play().catch(() => {});
-      player.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   });
 

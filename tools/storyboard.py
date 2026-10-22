@@ -18,21 +18,23 @@ FONT_T = 'assets/fonts/CormorantGaramond-VF.ttf'
 FONT_M = 'assets/fonts/IBMPlexMono-Medium.ttf'
 
 BEATS = [
-    (1.2, 'SC.1  the room, asleep'),
-    (4.2, 'the switch — light blooms'),
+    (1.2, 'the room, asleep'),
+    (4.2, 'the switch: light blooms'),
     (7.2, 'practising the sweep'),
-    (11.2, 'close: proud head, hot beam'),
+    (11.2, 'close: a proud head, a hot beam'),
     (14.6, 'raking its own wall'),
     (16.7, 'the moth arrives'),
     (19.6, 'the lamp turns away'),
-    (22.4, 'shake-off'),
-    (25.3, 'deadpan: beam into the lens'),
-    (27.4, 'click off — the huff'),
+    (22.4, 'the shake-off'),
+    (25.3, 'deadpan: the beam into the lens'),
+    (27.4, 'click off: the huff'),
     (30.4, 'darkness, holding'),
-    (33.6, 'moonlight, dead lamp'),
+    (33.6, 'moonlight on a dead lamp'),
     (37.6, 'the moon catches the shade'),
-    (47.2, 'the end card'),
+    (47.6, 'the end card'),
 ]
+# one consistent label system: SC 01 — <beat>, for every cell
+BEATS = [(t, f'SC {i:02d} — {name}') for i, (t, name) in enumerate(BEATS, 1)]
 
 os.makedirs(CELLS, exist_ok=True)
 

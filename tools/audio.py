@@ -201,12 +201,12 @@ n = int(0.62 * SR); tt = np.arange(n) / SR
 ris = (bp(noise(n), 900, 5200) * 0.5 + np.sin(2 * np.pi * (420 + 1500 * tt / 0.62) * tt) * 0.22)
 ris *= (tt / 0.62) ** 2.2
 place(sfx, ris, 24.33, 0.5)
-place(sfx, click(1.9, 0.55), 24.94, 1.7)                    # the switch of light itself
-place(sfx, bonk(58, 0.5, 0.42), 24.96, 0.95)                 # the body of the hit
+place(sfx, click(1.9, 0.6), 24.94, 2.7)                     # the switch of light itself
+place(sfx, bonk(58, 0.5, 0.42), 24.96, 1.4)                  # the body of the hit
 place(sfx, ping(3100, 0.13, 0.9), 25.0, 1.0)                 # the filament
 n = int(1.1 * SR); tt = np.arange(n) / SR
 bloom = (np.sin(2 * np.pi * 74 * tt) * 0.5 + np.sin(2 * np.pi * 111 * tt) * 0.3) * np.exp(-tt * 3.4)
-place(sfx, bloom, 24.97, 0.7)                                # the low bloom under the blast
+place(sfx, bloom, 24.97, 0.95)                               # the low bloom under the blast
 
 place(sfx, inhale(0.62, 0.13), 26.28, 1.0)                  # the huff
 place(sfx, click(1.6, 0.8), 27.0, 1.55)
@@ -216,8 +216,8 @@ place(sfx, ping(1980, 0.05, 0.3), 28.05, 1.0)
 place(sfx, chime((523.25, 783.99, 1046.5), 2.6, 0.055), 35.95, 1.0)   # the moon catches the shade
 place(sfx, whoosh(0.55, 0.07), 37.5, 1.0)                   # the moth crosses the beam
 place(sfx, ping(1560, 0.05, 0.7), 42.6, 1.0)
-place(sfx, ping(2470, 0.16, 1.35), 48.38, 1.0)               # the button: filament ping on the cut
-place(sfx, bonk(72, 0.5, 0.3), 48.37, 0.4)
+place(sfx, ping(2470, 0.17, 1.30), 49.12, 1.0)               # the button: filament ping on the cut
+place(sfx, bonk(72, 0.5, 0.3), 49.11, 0.42)
 
 # the click's dry switch also gets a tiny mechanical double-tick
 place(sfx, click(0.7, 1.3), 3.035, 0.55)
@@ -230,6 +230,11 @@ sfx += rt
 # ---------------------------------------------------------------- mix
 vob2 = np.stack([vob, np.roll(vob, 24) * 0.98], 1)      # a hair of width
 sfx2 = np.stack([sfx, sfx], 1)
+# an editorial tick on every picture cut, so no cut lands silently
+for ct in (2.5, 8.5, 12.5, 14.0, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 36.0, 40.0, 47.0):
+    place(sfx, click(2.6 + 0.3 * ((ct * 7) % 3), 0.1), ct, 0.20)
+    place(sfx, bonk(96, 0.5, 0.09), ct + 0.004, 0.12)
+
 mix = bed * 0.9 + vob2 * 1.7 + sfx2 * 0.9
 
 # gentle bus glue: soft knee limiter
