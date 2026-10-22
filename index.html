@@ -19,7 +19,7 @@
   }
   :root {
     --ink: #241a15; --ink2: #4a3728; --paper: #efe3c8; --paper2: #e3d3b2;
-    --warm: #c8761f; --ember: #b8402a; --night: #1e3039; --moon: #b9d4dc;
+    --warm: #9c4f12; --ember: #b8402a; --night: #1e3039; --moon: #b9d4dc;
     --mono: "Plex Mono", ui-monospace, monospace;
     --serif: "Cormorant", "Iowan Old Style", Georgia, serif;
   }
@@ -48,7 +48,7 @@
   main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 6vh 22px 9vh; }
 
   .eyebrow {
-    font-family: var(--mono); font-size: 11.5px; letter-spacing: .34em; text-transform: uppercase;
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: .3em; text-transform: uppercase;
     color: var(--warm); display: flex; gap: 14px; align-items: center; justify-content: center;
   }
   .eyebrow .rule { width: 54px; height: 1px; background: currentColor; opacity: .5; }
@@ -91,15 +91,15 @@
   .player.playing .playbtn { opacity: 0; pointer-events: none; }
   .player figcaption {
     position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 14px;
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
-    color: rgba(247,236,210,.72); background: linear-gradient(transparent, rgba(10,16,20,.55));
+    font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: rgba(247,236,210,.92); background: linear-gradient(transparent, rgba(10,16,20,.55));
     pointer-events: none;
   }
 
   .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 26px; margin: 26px 0 0; }
   .note { border-top: 1.5px solid rgba(36,26,21,.32); padding-top: 9px; }
-  .note h3 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--warm); margin: 0 0 5px; font-weight: 500; }
-  .note p { margin: 0; font-size: 16.5px; line-height: 1.4; color: var(--ink2); }
+  .note h3 { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--warm); margin: 0 0 5px; font-weight: 500; }
+  .note p { margin: 0; font-size: 17px; line-height: 1.42; color: #3f2f22; }
 
   .prose { margin: 44px auto 0; max-width: 62ch; }
   .prose p { font-size: clamp(17px, 2.1vw, 20.5px); line-height: 1.58; color: #3a2b20; margin: 0 0 1.05em; }
@@ -110,19 +110,20 @@
   .prose a { color: var(--ember); text-decoration: none; border-bottom: 1px solid rgba(184,64,42,.4); }
 
   .strip { margin: 46px 0 0; }
-  .strip h2 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--warm); margin: 0 0 10px; font-weight: 500; }
-  .strip img { display: block; width: 100%; border: 2px solid var(--ink); box-shadow: 8px 9px 0 rgba(36,26,21,.12); }
+  .strip h2 { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--warm); margin: 0 0 10px; font-weight: 500; }
+  .strip img { display: block; width: 100%; border-top: 1.5px solid rgba(36,26,21,.45); border-bottom: 1.5px solid rgba(36,26,21,.45); }
 
   footer {
     margin: 54px 0 0; padding-top: 18px; border-top: 1.5px solid rgba(36,26,21,.3);
     display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: baseline; justify-content: space-between;
-    font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #6b5341;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #55402f;
   }
   footer a { color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(36,26,21,.35); }
   footer a:hover { color: var(--ember); border-color: currentColor; }
 
   @media (max-width: 760px) {
     main { padding: 4.5vh 16px 7vh; }
+    .eyebrow { font-size: 10.5px; letter-spacing: .22em; }
     .notes { grid-template-columns: 1fr; gap: 14px; }
     .player .playbtn span { width: 74px; height: 74px; }
     .prose { margin-top: 32px; }
