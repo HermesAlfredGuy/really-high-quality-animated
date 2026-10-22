@@ -14,7 +14,7 @@ const C = {
   paper: '#efe3c8', paper2: '#e2d2b1',
   night: '#1e3039', night2: '#2c4752', night3: '#152229', sky: '#12212a',
   wood: '#6d452c', woodDark: '#46291c', woodHi: '#8a5c3d',
-  warm: '#ffc65c', warmCore: '#fff2c9', ember: '#e2662c',
+  warm: '#ffc65c', warmCore: '#ffdd9a', ember: '#e2662c',
   moon: '#b9d4dc', moonCore: '#e8f2f4', glass: '#7fa6b0',
   enamel: '#33544f', enamelHi: '#4d7268', brass: '#c08a3e', brassDark: '#8f5f24',
   book1: '#8c3b2c', book2: '#3f5a4e', book3: '#b07a35', cream: '#f7ecd2',
@@ -94,7 +94,10 @@ function lampState(t) {
   const beatBounce = (t > 3.1 && t < 26.2) || t > 32 ? Math.max(0, Math.sin(t * Math.PI * 2)) * 2.6 : 0;
   const slump = K(t, [[0, 0], [26.2, 0], [27.35, 22, 'out2'], [28.7, 33], [31.4, 34], [34.4, 9, 'io2'], [36.4, 2], [50, 0]]);
   return {
-    hop: hop - beatBounce - slump - Math.abs(shakeY) * 0.25, shadeAng: shadeAng + Math.sin((t - 21.22) * 66) * shakeEnv * 0.36, bright, faceMix, shake, squash: squash * (1 + beatBounce * 0.004), lean,
+    hop: hop - beatBounce - slump - Math.abs(shakeY) * 0.25,
+    shadeAng: shadeAng + Math.sin((t - 21.22) * 66) * shakeEnv * 0.36
+      + K(t, [[0, 0], [30.5, 0], [33.5, 0.075], [37.0, -0.055], [41.5, 0.045], [46.5, -0.01], [50, 0]]),
+    bright, faceMix, shake, squash: squash * (1 + beatBounce * 0.004), lean,
     baseX: LX + shake * 0.5, px: LX + lean, py: BASEY + hop - PIVH,
     ember: K(t, [[0, 0], [26.99, 0], [27.03, 1], [28.5, 0.45], [29.2, 0], [50, 0]]),
     moonIn: K(t, [[0, 0], [35.9, 0], [37.1, 1, 'io2'], [38.6, 0.75], [41.0, 0.7], [43.5, 0.85], [50, 0.8]]),
@@ -138,22 +141,23 @@ function mothState(t) {
 
 function camera(t) {
   const shots = [
-    [0.0, 2.6, 1.24, 1150, 486, 1096, 500],
-    [2.6, 8.4, 1.0, 944, 608, 950, 598],
-    [8.4, 12.4, 1.92, 690, 568, 704, 556],
-    [12.4, 14.0, 1.42, 900, 600, 884, 592],
+    [0.0, 2.5, 1.24, 1150, 486, 1096, 500],
+    [2.5, 8.5, 1.0, 944, 608, 950, 598],
+    [8.5, 12.5, 1.92, 690, 568, 704, 556],
+    [12.5, 14.0, 1.42, 900, 600, 884, 592],
     [14.0, 16.0, 3.20, 376, 288, 384, 296],
-    [16.0, 17.7, 1.06, 1004, 602, 984, 596],
-    [17.7, 19.1, 3.05, 700, 486, 690, 480],
-    [19.1, 20.6, 1.28, 806, 664, 824, 652],
-    [20.6, 22.0, 3.55, 700, 520, 706, 514],
+    [16.0, 17.5, 1.06, 1004, 602, 984, 596],
+    [17.5, 19.0, 3.05, 700, 486, 690, 480],
+    [19.0, 20.5, 1.28, 806, 664, 824, 652],
+    [20.5, 22.0, 3.55, 700, 520, 706, 514],
     [22.0, 23.5, 2.75, 704, 526, 694, 518],
     [23.5, 26.0, 1.62, 720, 560, 712, 550],
     [26.0, 31.0, 1.7, 700, 598, 696, 588],
     [31.0, 36.0, 1.0, 956, 606, 962, 598],
     [36.0, 40.0, 1.84, 758, 536, 738, 526],
-    [40.0, 47.2, 1.0, 936, 606, 976, 594],
-    [47.2, 50.0, 1.46, 880, 566, 830, 548],
+    [40.0, 47.0, 1.0, 936, 606, 976, 594],
+    [47.0, 49.1, 1.36, 880, 566, 836, 550],
+    [49.1, 50.0, 1.36, 836, 550, 830, 548],
   ];
   let s = null;
   for (const sh of shots) if (t >= sh[0] && t < sh[1]) s = sh;
@@ -583,6 +587,15 @@ function drawLight(c, s, sd) {
       const hx = mx + Math.sin(L.shadeAng) * dist;
       fillShape(c, circlePts(clamp(hx, 60, W - 60), DESK + 12, 22, 0, 200), `rgba(200,230,240,${0.30 * rf})`, { seed: sd + 262, amp: 2.4 });
     }
+    for (let i = 0; i < 16; i++) {
+      const ph = hs(i, 111);
+      const d0 = 120 + ((t * (40 + ph * 55) + ph * 900) % 880);
+      const ang2 = dirA + (hs(i, 113) - 0.5) * half * 1.5;
+      const dx3 = mx + Math.sin(ang2) * d0, dy3 = my + Math.cos(ang2) * d0;
+      if (dy3 > DESK - 10) continue;
+      const a3 = clamp(1 - d0 / 950, 0, 1) * rf * (0.22 + ph * 0.4);
+      fillShape(c, circlePts(dx3, dy3, 1.5 + ph * 2.8, 0, 8), `rgba(226,242,248,${a3})`, { seed: sd + 700 + i, amp: 1.6 });
+    }
     const wx = mx + Math.sin(L.shadeAng) * 500, wy = my + Math.cos(L.shadeAng) * 500;
     fillShape(c, circlePts(wx, wy, 280, 0, 240), `rgba(180,214,226,${0.14 * rf})`, { seed: sd + 263, amp: 4 });
     c.restore();
@@ -757,6 +770,25 @@ function blowOut(c, s, sd) {
     inkStroke(c, [[mx + Math.cos(a) * r0, my + Math.sin(a) * r0 * 0.7], [mx + Math.cos(a) * r1, my + Math.sin(a) * r1 * 0.7]],
       { seed: sd + 332 + i, w: 4, amp: 1.2, t0: 6, t1: 6, color: `rgba(226,102,44,${0.45 * k})` });
   }
+  // three shockwave rings racing out from the shade, on ones with the ink
+  const tb = Math.max(0, s.t - 24.94);
+  for (let i = 0; i < 3; i++) {
+    const r = 120 + (tb - i * 0.07) * 1500;
+    if (tb - i * 0.07 <= 0) continue;
+    const a = clamp(1 - (tb - i * 0.07) / 0.95, 0, 1);
+    inkLoop(c, circlePts(mx, my, r, 0, 96), {
+      seed: sd + 640 + i, w: 5 - i * 1.2, amp: 3.4, t0: 40, t1: 40,
+      color: `rgba(255,248,232,${0.55 * a * k})` });
+  }
+  // dust blown off the desk, travelling outward and settling
+  for (let i = 0; i < 26; i++) {
+    const ph = hs(i, 33), sp = 240 + ph * 820;
+    const dx = (hs(i, 37) - 0.5) * 2, dy2 = (hs(i, 39) - 0.6) * 1.3;
+    const ax = mx + dx * sp * tb, ay = my + dy2 * sp * tb + 260 * tb * tb;
+    const a2 = clamp(1 - tb / 0.95, 0, 1) * (0.25 + ph * 0.5);
+    if (a2 <= 0) continue;
+    fillShape(c, circlePts(ax, ay, 1.6 + ph * 3.4, 0, 8), `rgba(255,244,220,${a2 * k})`, { seed: sd + 660 + i, amp: 1.4 });
+  }
   c.restore();
 }
 
@@ -771,8 +803,8 @@ function drawTitle(c, s, sd) {
   g.addColorStop(0.62, `rgba(14,22,27,${0.66 * dim})`);
   g.addColorStop(1, `rgba(14,22,27,${0.18 * dim})`);
   c.fillStyle = g; c.fillRect(0, 0, W, H);
-  const reveal = K(t, [[45.0, 0], [45.95, 1, 'io2'], [50, 1]]);
-  const k = K(t, [[44.6, 0], [45.3, 1, 'io2'], [50, 1]]);
+  const reveal = K(t, [[45.5, 0], [46.8, 1, 'io3'], [50, 1]]);
+  const k = K(t, [[45.2, 0], [45.9, 1, 'io2'], [50, 1]]);
   const cx = W / 2, cy = 330;
   c.save();
   c.beginPath(); c.rect(0, 0, W * reveal, H); c.clip();
@@ -791,9 +823,9 @@ function drawTitle(c, s, sd) {
   c.restore();
   const ck = K(t, [[46.1, 0], [46.9, 1, 'io2'], [50, 1]]);
   c.globalAlpha = ck * k;
-  c.font = '500 15px "Plex Mono"'; c.letterSpacing = '5px';
-  c.fillStyle = 'rgba(244,233,208,0.78)'; c.textAlign = 'center';
-  c.fillText('MUSIC · MUSIC FOR CREATORS · CC BY 4.0', cx + 3, cy + 96);
+  c.font = '500 22px "Plex Mono"'; c.letterSpacing = '4px';
+  c.fillStyle = 'rgba(250,242,224,0.94)'; c.textAlign = 'center';
+  c.fillText('MUSIC · MUSIC FOR CREATORS · CC BY 4.0', cx + 3, cy + 112);
   // an underline drawn on with the same hand
   const ul = K(t, [[46.15, 0], [46.95, 1, 'io2'], [50, 1]]);
   if (ul > 0.01) {
@@ -881,7 +913,7 @@ function drawFrame(t) {
   drawMoth(ctx, s, sd);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   paperFinish(ctx);
-  if (s.t >= 48.35) { ctx.fillStyle = '#0d0a07'; ctx.fillRect(0, 0, W, H); }
+  if (s.t >= 49.1) { ctx.fillStyle = '#0d0a07'; ctx.fillRect(0, 0, W, H); }
   drawTitle(ctx, s, sd);
 }
 
