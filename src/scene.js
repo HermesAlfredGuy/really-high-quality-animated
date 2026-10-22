@@ -24,7 +24,7 @@ const C = {
 // ---------------------------------------------------------------- world geometry
 const DESK = 800, DESK_FRONT = 866;
 const WIN = { x0: 1288, y0: 96, x1: 1642, y1: 660 };
-const MOONP = { x: 1500, y: 264, r: 88 };
+const MOONP = { x: 1552, y: 248, r: 84 };
 const LX = 686, BASEY = DESK + 10;
 const PIVH = 318;                            // shade socket height above the base
 const PICT = { x0: 268, y0: 190, x1: 492, y1: 388 };
@@ -50,7 +50,8 @@ function lampState(t) {
     [50, 0],
   ]);
   const shadeAng = K(t, [
-    [0, -0.06], [2.9, -0.06],
+    [0, -0.10], [0.35, -0.10],
+    [1.55, 0.58, 'io2'], [2.15, 0.56], [2.75, -0.04, 'io3'],
     [3.4, 0.22, 'out3'], [4.1, -0.34, 'io3'], [4.9, 0.42, 'io3'],
     [5.7, -0.46, 'io3'], [6.5, 0.40, 'io3'], [7.3, -0.30, 'io3'], [8.1, 0.30, 'io3'],
     [8.9, -0.12, 'io2'], [9.5, 0.06, 'out2'],
@@ -66,7 +67,7 @@ function lampState(t) {
     [24.2, 0.18, 'io2'], [24.9, 0.12],
     [25.45, 0.02, 'out2'], [26.05, 0.0],
     [26.35, -0.32, 'out2'], [26.85, -0.36],
-    [27.06, 0.62, 'in3'], [28.3, 0.68],
+    [27.06, 0.62, 'in3'], [28.1, 0.84], [30.0, 0.88], [33.3, 0.6],
     [29.85, 0.65], [30.05, 0.62, 'out3'],
     [31.6, 0.6], [33.3, 0.32, 'io2'], [34.2, 0.1],
     [35.3, 0.52, 'io2'], [36.5, 1.0, 'io3'],
@@ -85,11 +86,12 @@ function lampState(t) {
   ]);
   const faceMix = K(t, [[0, 0], [24.92, 0], [25.22, 1, 'out3'], [25.84, 1], [25.99, 0, 'in2'], [50, 0]]);
   const shake = t > 21.3 && t < 22.1 ? Math.sin((t - 21.3) * 46) * (1 - (t - 21.3) / 0.8) * 9 : 0;
-  const squash = K(t, [[0, 1], [3.0, 1], [3.2, 0.9], [3.5, 1.02], [3.8, 1], [26.9, 1], [27.05, 0.88], [27.4, 1.0], [50, 1]]);
-  const lean = K(t, [[0, 0], [3.4, 0], [9.6, 2], [13.2, 0], [17.2, -7], [19.4, 5], [21.4, -3], [26.1, 0], [27.2, 8], [31.0, 10], [34.6, 2], [36.6, 1], [50, 0]]);
+  const squash = K(t, [[0, 1], [3.0, 1], [3.2, 0.9], [3.5, 1.02], [3.8, 1], [26.9, 1], [27.05, 0.86], [27.5, 0.94], [28.2, 0.91], [33.6, 0.95], [36.2, 1], [50, 1]]);
+  const lean = K(t, [[0, 0], [0.4, 0], [1.55, 7, 'io2'], [2.2, 6], [2.8, 0, 'io3'], [3.4, 0], [9.6, 2], [13.2, 0], [17.2, -7], [19.4, 5], [21.4, -3], [26.1, 0], [27.2, 8], [31.0, 10], [34.6, 2], [36.6, 1], [50, 0]]);
   const beatBounce = (t > 3.1 && t < 26.2) || t > 32 ? Math.max(0, Math.sin(t * Math.PI * 2)) * 2.6 : 0;
+  const slump = K(t, [[0, 0], [26.2, 0], [27.35, 22, 'out2'], [28.7, 33], [31.4, 34], [34.4, 9, 'io2'], [36.4, 2], [50, 0]]);
   return {
-    hop: hop - beatBounce, shadeAng, bright, faceMix, shake, squash: squash * (1 + beatBounce * 0.004), lean,
+    hop: hop - beatBounce - slump, shadeAng, bright, faceMix, shake, squash: squash * (1 + beatBounce * 0.004), lean,
     baseX: LX + shake * 0.4, px: LX + lean, py: BASEY + hop - PIVH,
     ember: K(t, [[0, 0], [26.99, 0], [27.03, 1], [28.5, 0.45], [29.2, 0], [50, 0]]),
     moonIn: K(t, [[0, 0], [35.9, 0], [37.1, 1, 'io2'], [38.6, 0.75], [41.0, 0.7], [43.5, 0.85], [50, 0.8]]),
@@ -133,7 +135,8 @@ function mothState(t) {
 
 function camera(t) {
   const shots = [
-    [0.0, 10.0, 1.0, 950, 612, 950, 598],
+    [0.0, 2.6, 1.46, 1428, 326, 1362, 352],
+    [2.6, 10.0, 1.0, 944, 608, 952, 596],
     [10.0, 14.0, 1.92, 690, 568, 704, 556],
     [14.0, 16.0, 1.0, 962, 608, 944, 602],
     [16.0, 18.0, 1.5, 748, 566, 734, 552],
@@ -211,6 +214,10 @@ function drawWindow(c, s, sd) {
   // sill
   fillShape(c, rectPts(WIN.x0 - 44, WIN.y1 + 20, w + 88, 24), C.night2, { seed: sd + 66, amp: 1.4, dx: 2, dy: 3 });
   inkStroke(c, [[WIN.x0 - 48, WIN.y1 + 20], [WIN.x1 + 48, WIN.y1 + 20]], { seed: sd + 67, w: 5.5, amp: 1.2, t0: 30, t1: 30 });
+  c.save(); c.globalCompositeOperation = 'screen';
+  inkStroke(c, [[WIN.x0 - 7, WIN.y0 - 9], [WIN.x1 + 7, WIN.y0 - 9]], { seed: sd + 68, w: 3, amp: 1, t0: 8, t1: 8, color: 'rgba(186,220,232,0.34)' });
+  fillShape(c, rectPts(WIN.x0 - 120, WIN.y0 - 120, (WIN.x1 - WIN.x0) + 240, (WIN.y1 - WIN.y0) + 260), 'rgba(150,196,214,0.09)', { seed: sd + 69, amp: 6 });
+  c.restore();
 }
 
 function drawPicture(c, s, sd) {
@@ -356,12 +363,11 @@ function drawLamp(c, s, sd) {
   fillShape(c, bottom, C.brassDark, { seed: sd + 160, amp: 1.8 });
   fillShape(c, [[bx - 80, by], [bx + 80, by], [bx + 64, topY], [bx - 64, topY]], C.brass, { seed: sd + 161, amp: 2 });
   fillShape(c, top, C.brassDark, { seed: sd + 162, amp: 1.6 });
-  fillShape(c, [[bx - 52, topY + 4], [bx - 12, topY - 8], [bx - 4, topY - 2], [bx - 44, topY + 11]], 'rgba(255,236,190,0.30)', { seed: sd + 163, amp: 1.2 });
   inkLoop(c, bottom, { seed: sd + 164, w: 4, amp: 1.4 });
   inkLoop(c, top, { seed: sd + 165, w: 3.6, amp: 1.2 });
-  // switch knob
-  fillShape(c, rectPts(bx + 30, topY - 12, 18, 12), '#d8cbb0', { seed: sd + 166, amp: 0.9 });
-  inkLoop(c, rectPts(bx + 30, topY - 12, 18, 12), { seed: sd + 167, w: 2, amp: 0.8 });
+  // switch: a small tumbler at the back of the base, not a bright badge
+  fillShape(c, rectPts(bx + 26, topY + 6, 15, 9), '#7d5a30', { seed: sd + 166, amp: 0.7 });
+  inkLoop(c, rectPts(bx + 26, topY + 6, 15, 9), { seed: sd + 167, w: 1.8, amp: 0.7 });
   // ------------- gooseneck: an S-curve tube from the base collar to the socket
   const x0 = bx, y0 = topY - 8, x1 = L.px, y1 = L.py + 16;
   const cpts = [[x0 + 4, y0 - 110 * bs], [x1 - 34, y1 + 120], [x1, y1]];
@@ -592,9 +598,21 @@ function drawMoth(c, s, sd) {
   const flap = M.wing;
   let mx = M.x, my = M.y, msc = 1;
   if (t < 15.55) {
-    mx = 1352 + Math.sin(t * 2.1) * 30 + Math.sin(t * 5.7) * 7;
-    my = 296 + Math.sin(t * 3.3) * 24 + Math.cos(t * 6.1) * 6;
-    msc = 0.52;
+    mx = 1352 + Math.sin(t * 2.6) * 42 + Math.sin(t * 6.3) * 9;
+    my = 296 + Math.sin(t * 3.9) * 30 + Math.cos(t * 6.8) * 8;
+    msc = 0.82;
+  }
+  if (t < 15.55) {
+    // a shadow on the pane, so it reads as a moth ON the glass
+    c.save();
+    c.translate(mx + 5, my + 6);
+    c.scale(msc, msc);
+    for (const sgn of [-1, 1]) {
+      const up = 26 + 30 * flap, out = 30 + 20 * flap;
+      fillShape(c, [[sgn * 4, -2], [sgn * out, -up], [sgn * (out + 4), up * 0.1], [sgn * 12, 8]], 'rgba(10,16,20,0.34)', { seed: sd + 268, amp: 1.2 });
+    }
+    fillShape(c, [[-7, 12], [7, 12], [6, -9], [-6, -9]], 'rgba(10,16,20,0.3)', { seed: sd + 269, amp: 0.8 });
+    c.restore();
   }
   c.save();
   c.translate(mx, my);
@@ -654,7 +672,7 @@ function drawDust(c, s, sd) {
     const inCone = ad < 0.46 ? clamp(1 - d / 1000, 0, 1) : 0;
     const warm = inCone * Math.min(1, L.bright);
     const inMoon = clamp(1 - Math.abs(x - 1330) / 380, 0, 1) * clamp((y - 130) / 460, 0, 1) * s.moonAmt;
-    const a = clamp(0.03 + warm * 0.85 + inMoon * 0.3, 0, 0.9);
+    const a = clamp(0.03 + warm * 0.85 + inMoon * 0.42, 0, 0.95);
     if (a < 0.1) continue;
     const col = warm > inMoon ? `rgba(255,238,196,${a})` : `rgba(216,236,242,${a})`;
     const rr = m.r * (1 + warm * 0.5);
