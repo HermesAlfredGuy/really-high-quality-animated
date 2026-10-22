@@ -38,8 +38,26 @@ os.makedirs(CELLS, exist_ok=True)
 
 
 def grab(t, w, h, out):
+    """Pull one frame and resize it with PIL, so the cell is exactly w x h.
+
+    ffmpeg cannot write 560x315 JPEGs directly: 315 is odd and yuv420 needs even
+    dimensions, so it silently emits 560x314 and the page's declared height is a lie.
+    """
+    png = out + '.png'
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', f'{t}', '-i', FILM, '-frames:v', '1',
-                    '-vf', f'scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h}', out], check=True)
+                    '-vf', f'scale={w * 2}:{h * 2}:force_original_aspect_ratio=increase', png], check=True)
+    im = Image.open(png).convert('RGB')
+    imw, imh = im.size
+    # centre-crop to the 16:9 target, then resample to the exact cell size
+    tw, th = w * 2, h * 2
+    if imw / imh > w / h:
+        nw = int(imh * w / h)
+        im = im.crop(((imw - nw) // 2, 0, (imw + nw) // 2, imh))
+    else:
+        nh = int(imw * h / w)
+        im = im.crop((0, (imh - nh) // 2, imw, (imh + nh) // 2))
+    im.resize((w, h), Image.LANCZOS).save(out, quality=88, subsampling=0)
+    os.remove(png)
 
 
 beats = []
