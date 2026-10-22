@@ -135,13 +135,13 @@ function mothState(t) {
 
 function camera(t) {
   const shots = [
-    [0.0, 2.6, 1.46, 1428, 326, 1362, 352],
+    [0.0, 2.6, 1.24, 1150, 486, 1096, 500],
     [2.6, 10.0, 1.0, 944, 608, 952, 596],
     [10.0, 14.0, 1.92, 690, 568, 704, 556],
-    [14.0, 16.0, 1.0, 962, 608, 944, 602],
+    [14.0, 16.0, 3.20, 376, 288, 384, 296],
     [16.0, 18.0, 1.5, 748, 566, 734, 552],
     [18.0, 20.0, 2.08, 708, 536, 702, 528],
-    [20.0, 22.0, 1.44, 736, 526, 750, 542],
+    [20.0, 22.0, 1.95, 726, 492, 742, 512],
     [22.0, 26.0, 2.18, 716, 552, 712, 542],
     [26.0, 31.0, 1.7, 700, 598, 696, 588],
     [31.0, 36.0, 1.0, 956, 606, 962, 598],
@@ -176,7 +176,8 @@ function state(t) {
   const moonAmt = K(t, [[0, 0.34], [3.6, 0.13], [26.9, 0.13], [29.4, 0.20], [31.2, 0.72], [34, 0.85], [36.5, 0.95], [50, 0.98]]);
   const refl = K(t, [[0, 0], [35.8, 0], [37.2, 0.85, 'io2'], [38.8, 0.55], [41.5, 0.5], [43.5, 0.62], [46, 0.55], [50, 0.5]]);
   const dim = K(t, [[0, 0], [44.4, 0], [45.6, 1, 'io2'], [50, 1]]);
-  return { t, L, M, cam, moonAmt, refl, dim };
+  const fm = K(t, [[0, 0], [24.86, 0], [25.16, 1, 'out3'], [25.86, 1], [26.02, 0, 'in2'], [50, 0]]);
+  return { t, L, M, cam, moonAmt, refl, dim, fm };
 }
 
 // ---------------------------------------------------------------- room
@@ -184,11 +185,15 @@ function drawSky(c, s, sd) {
   fillShape(c, rectPts(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0), C.sky, { seed: sd + 11, amp: 2.4 });
   fillShape(c, [[WIN.x0, 566], [WIN.x0 + 86, 520], [WIN.x0 + 168, 548], [WIN.x0 + 246, 506], [WIN.x0 + 322, 542], [WIN.x1, 514], [WIN.x1, WIN.y1], [WIN.x0, WIN.y1]], '#0f1b22', { seed: sd + 12, amp: 3 });
   const mx = MOONP.x, my = MOONP.y, mr = MOONP.r;
+  c.save();
+  c.beginPath(); c.rect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0); c.clip();
   [[mr * 2.0, 0.04], [mr * 1.55, 0.06]].forEach(([r, a], i) => {
     c.save(); c.globalCompositeOperation = 'screen';
     fillShape(c, circlePts(mx, my, r), `rgba(190,220,228,${a})`, { seed: sd + 20 + i, amp: 2.6 });
     c.restore();
   });
+  fillShape(c, circlePts(mx, my, mr * 2.0), 'rgba(214,236,242,0.03)', { seed: sd + 21, amp: 3 });
+  c.restore();
   fillShape(c, circlePts(mx, my, mr), C.moonCore, { seed: sd + 30, amp: 1.2 });
   [[-24, -18, 14], [16, 12, 11], [-4, 28, 8], [28, -32, 6]].forEach(([dx, dy, r], i) => {
     fillShape(c, circlePts(mx + dx, my + dy, r), 'rgba(150,180,190,0.45)', { seed: sd + 40 + i, amp: 1.2 });
@@ -238,8 +243,15 @@ function drawPicture(c, s, sd) {
   }
   fillShape(c, rectPts(tx - 15, ty - 18, 30, 18), '#2c3c3b', { seed: sd + 79, amp: 1 });
   fillShape(c, rectPts(tx - 10, ty - 14, 20, 10), C.warmCore, { seed: sd + 80, amp: 0.8 });
-  fillShape(c, [[tx + 15, ty - 12], [tx + 76, ty - 24], [tx + 76, ty + 1], [tx + 15, ty - 3]], 'rgba(255,240,190,0.8)', { seed: sd + 81, amp: 1.2 });
-  fillShape(c, [[tx - 15, ty - 12], [tx - 74, ty - 24], [tx - 74, ty + 1], [tx - 15, ty - 3]], 'rgba(255,240,190,0.8)', { seed: sd + 82, amp: 1.2 });
+  // the painted lighthouse sweeps its own beam — the picture is the lamp's teacher
+  const sw = 0.34 + 0.30 * Math.sin(s.t * 0.85);
+  for (const dir of [1, -1]) {
+    const L2 = 80, a = dir > 0 ? sw : Math.PI - sw;
+    const ex = tx + Math.cos(a) * L2, ey = ty - 8 + Math.sin(a) * L2 * 0.42;
+    const w0 = 4, w1 = 15;
+    fillShape(c, [[tx + dir * 15, ty - 14], [tx + dir * 15, ty - 2], [ex, ey + w1 * 0.5], [ex, ey - w1 * 0.5]],
+      'rgba(255,240,190,0.72)', { seed: sd + 81 + (dir > 0 ? 0 : 1), amp: 1.0 });
+  }
   inkLoop(c, tower, { seed: sd + 83, w: 2.4, amp: 0.9, color: 'rgba(36,26,21,0.7)' });
   inkStroke(c, [[ix0, iy0 + ih * 0.52], [ix0 + iw, iy0 + ih * 0.52]], { seed: sd + 84, w: 2, amp: 0.9, color: 'rgba(36,26,21,0.45)', t0: 20, t1: 20 });
   inkLoop(c, inner, { seed: sd + 85, w: 2.6, amp: 1.1 });
@@ -543,14 +555,10 @@ function drawLight(c, s, sd) {
       c.restore();
     }
   }
-  // the deadpan flash (beam straight at the lens)
-  if (L.faceMix > 0.25) {
-    const k = L.faceMix * b;
-    c.save(); c.globalCompositeOperation = 'screen';
-    fillShape(c, rectPts(-60, -60, W + 120, H + 120), `rgba(255,198,112,${0.30 * k})`, { seed: sd + 245, amp: 4 });
-    fillShape(c, circlePts(mx, my, 210 * k, 0, 210 * k), `rgba(255,226,168,${0.26 * k})`, { seed: sd + 247, amp: 5 });
-    fillShape(c, circlePts(mx, my, 430 * k, 0, 430 * k), `rgba(255,206,130,${0.13 * k})`, { seed: sd + 248, amp: 6 });
-    c.restore();
+  // the deadpan: the beam is fired straight down the lens (the blow-out happens over everything, later)
+  if (s.fm > 0.02) {
+    const k = s.fm * (0.6 + 0.4 * Math.min(1, b));
+    fillShape(c, circlePts(mx, my, 190 * k, 0, 190 * k), `rgba(255,246,222,${0.55 * k})`, { seed: sd + 245, amp: 3 });
   }
   // borrowed silver beam from the white inside of the shade
   const rf = s.refl;
@@ -558,8 +566,10 @@ function drawLight(c, s, sd) {
     c.save(); c.globalCompositeOperation = 'screen';
     const half = 0.44, len = 1600;
     c.beginPath(); c.rect(-400, -400, W + 800, DESK + 400); c.clip();
-    fillShape(c, beamShape(mx, my, dirA, half, len, SHADE_R * 0.8), `rgba(170,212,228,${0.19 * rf})`, { seed: sd + 260, amp: 3.2 });
-    fillShape(c, beamShape(mx, my, dirA, half * 0.5, len * 0.9, SHADE_R * 0.66), `rgba(226,242,248,${0.15 * rf})`, { seed: sd + 261, amp: 2.4 });
+    const bOuter = beamShape(mx, my, dirA, half, len, SHADE_R * 0.8);
+    fillShape(c, bOuter, `rgba(176,216,232,${0.34 * rf})`, { seed: sd + 260, amp: 3.2 });
+    inkLoop(c, bOuter, { seed: sd + 264, w: 3, amp: 2.4, color: `rgba(150,196,214,${0.55 * rf})`, t0: 60, t1: 60 });
+    fillShape(c, beamShape(mx, my, dirA, half * 0.5, len * 0.9, SHADE_R * 0.66), `rgba(232,246,250,${0.26 * rf})`, { seed: sd + 261, amp: 2.4 });
     if (dy > 0.1) {
       const dist = (DESK - my) / Math.max(0.001, dy);
       const hx = mx + Math.sin(L.shadeAng) * dist;
@@ -597,11 +607,13 @@ function drawMoth(c, s, sd) {
   const M = s.M, t = s.t;
   const flap = M.wing;
   let mx = M.x, my = M.y, msc = 1;
+  if (t <= 12.95) return;
   if (t < 15.55) {
     mx = 1352 + Math.sin(t * 2.6) * 42 + Math.sin(t * 6.3) * 9;
     my = 296 + Math.sin(t * 3.9) * 30 + Math.cos(t * 6.8) * 8;
     msc = 0.82;
   }
+  if (t <= 12.95) return;
   if (t < 15.55) {
     // a shadow on the pane, so it reads as a moth ON the glass
     c.save();
@@ -619,6 +631,9 @@ function drawMoth(c, s, sd) {
   c.scale(msc, msc);
   c.rotate(M.ang * 0.4);
   // wings
+  const sil = s.fm > 0.25;
+  const wingCol = sil ? 'rgba(32,24,18,0.92)' : 'rgba(243,234,208,0.95)';
+  const inkCol = sil ? 'rgba(20,14,10,0.95)' : 'rgba(30,22,16,0.85)';
   const folded = 0.42 + 0.58 * Math.min(1, M.wing);
   for (const sgn of [-1, 1]) {
     const up = (26 + 30 * flap) * (0.5 + 0.5 * folded);   // how far the wing lifts
@@ -632,14 +647,14 @@ function drawMoth(c, s, sd) {
       [sgn * 12, 8],
     ];
     const wp = spline(wing.map(([x, y]) => [x, y]), true, 6).filter((_, i) => i % 3 === 0);
-    fillShape(c, wp, 'rgba(243,234,208,0.95)', { seed: sd + 270 + sgn, amp: 1.4 });
-    inkLoop(c, wp.length > 8 ? wp : wing, { seed: sd + 274 + sgn, w: 2.2, amp: 1, color: 'rgba(30,22,16,0.85)' });
+    fillShape(c, wp, wingCol, { seed: sd + 270 + sgn, amp: 1.4 });
+    inkLoop(c, wp.length > 8 ? wp : wing, { seed: sd + 274 + sgn, w: 2.2, amp: 1, color: inkCol });
     fillShape(c, circlePts(sgn * (out * 0.62), -up * 0.45, 4.6, 0, 3.6), 'rgba(120,96,64,0.5)', { seed: sd + 278 + sgn, amp: 0.7 });
   }
   // body + head
-  fillShape(c, [[-7, 12], [7, 12], [6, -9], [-6, -9]], '#5a4a38', { seed: sd + 282, amp: 0.9 });
+  fillShape(c, [[-7, 12], [7, 12], [6, -9], [-6, -9]], sil ? '#241a15' : '#5a4a38', { seed: sd + 282, amp: 0.9 });
   inkLoop(c, [[-7, 12], [7, 12], [6, -9], [-6, -9]], { seed: sd + 283, w: 1.8, amp: 0.8 });
-  fillShape(c, circlePts(0, -12, 6), '#6b5942', { seed: sd + 284, amp: 0.8 });
+  fillShape(c, circlePts(0, -12, 6), sil ? '#241a15' : '#6b5942', { seed: sd + 284, amp: 0.8 });
   inkLoop(c, circlePts(0, -12, 6), { seed: sd + 285, w: 1.6, amp: 0.7 });
   inkStroke(c, [[-3, -17], [-11, -30], [-18, -36]], { seed: sd + 286, w: 1.5, amp: 0.6, t0: 4, t1: 4 });
   inkStroke(c, [[3, -17], [11, -30], [18, -36]], { seed: sd + 287, w: 1.5, amp: 0.6, t0: 4, t1: 4 });
@@ -698,6 +713,28 @@ function paperFinish(c) {
   c.restore();
 }
 
+function blowOut(c, s, sd) {
+  const k = s.fm;
+  if (k <= 0.02) return;
+  const [mx, my] = mouthWorld(s.L);
+  c.save();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.fillStyle = `rgba(255,247,226,${0.72 * k})`;
+  c.fillRect(0, 0, W, H);
+  const { s: z, x, y } = s.cam;
+  c.setTransform(z, 0, 0, z, W / 2 - x * z, H / 2 - y * z);
+  // hot core + a few radial ink ticks: the classic cel "light in the lens"
+  fillShape(c, circlePts(mx, my, 120 * k, 0, 120 * k), `rgba(255,252,240,${0.9 * k})`, { seed: sd + 330, amp: 1.6 });
+  inkLoop(c, circlePts(mx, my, 120 * k), { seed: sd + 331, w: 3, amp: 1.4, color: `rgba(226,102,44,${0.5 * k})` });
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + 0.28 + Math.sin(s.t * 9 + i) * 0.02;
+    const r0 = 132, r1 = 132 + 70 + 40 * hs(sd, i);
+    inkStroke(c, [[mx + Math.cos(a) * r0, my + Math.sin(a) * r0 * 0.7], [mx + Math.cos(a) * r1, my + Math.sin(a) * r1 * 0.7]],
+      { seed: sd + 332 + i, w: 4, amp: 1.2, t0: 6, t1: 6, color: `rgba(226,102,44,${0.45 * k})` });
+  }
+  c.restore();
+}
+
 function drawTitle(c, s, sd) {
   const t = s.t;
   const dim = s.dim;
@@ -718,19 +755,20 @@ function drawTitle(c, s, sd) {
   // inked letterforms, one path so the counters stay open
   c.beginPath();
   for (const sub of TITLES.subs) {
-    const pts = boil(sub.map(([x, y]) => [cx + (x - TITLES.cx), cy + (y - TITLES.cy)]), sd + 400, 1.6, 90);
+    const pts = boil(sub.map(([x, y]) => [cx + (x - TITLES.cx), cy + (y - TITLES.cy)]), sd + 400, 4.0, 90);
     polyPath(c, pts);
   }
   c.fillStyle = 'rgba(30,21,16,0.55)';
   c.save(); c.translate(3, 4); c.fill('nonzero'); c.restore();
   c.fillStyle = '#f4e9d0';
   c.fill('nonzero');
+  c.strokeStyle = 'rgba(36,26,21,0.85)'; c.lineWidth = 3.4; c.stroke();
   c.restore();
   const ck = K(t, [[46.1, 0], [46.9, 1, 'io2'], [50, 1]]);
   c.globalAlpha = ck * k;
-  c.font = '500 21px "Plex Mono"'; c.letterSpacing = '7px';
+  c.font = '500 15px "Plex Mono"'; c.letterSpacing = '5px';
   c.fillStyle = 'rgba(244,233,208,0.78)'; c.textAlign = 'center';
-  c.fillText('A FILM DRAWN IN CODE', cx + 3, cy + 96);
+  c.fillText('MUSIC · MUSIC FOR CREATORS · CC BY 4.0', cx + 3, cy + 96);
   c.restore();
 }
 
@@ -787,7 +825,7 @@ function drawFrame(t) {
   const s = state(t);
   const { s: z, x, y } = s.cam;
   GLOBAL.ink = 1 / Math.pow(z, 0.92);
-  GLOBAL.amp = clamp(2.9 / Math.pow(z, 0.7), 1.0, 3.1);
+  GLOBAL.amp = clamp(3.05 / Math.pow(z, 0.7), 1.2, 3.3);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = C.night; ctx.fillRect(0, 0, W, H);
@@ -800,6 +838,7 @@ function drawFrame(t) {
   nightVeil(ctx, Math.max(s.L.bright, s.moonAmt * 0.92));
   drawLight(ctx, s, sd);
   drawDust(ctx, s, sd);
+  blowOut(ctx, s, sd);
   drawMoth(ctx, s, sd);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   paperFinish(ctx);

@@ -1,0 +1,100 @@
+[
+ {
+  "i": 1,
+  "t": 1.2,
+  "mark": "0:01.2",
+  "label": "SC.1  the room, asleep",
+  "img": "media/sb/f01.jpg"
+ },
+ {
+  "i": 2,
+  "t": 4.2,
+  "mark": "0:04.2",
+  "label": "the switch \u2014 light blooms",
+  "img": "media/sb/f02.jpg"
+ },
+ {
+  "i": 3,
+  "t": 7.2,
+  "mark": "0:07.2",
+  "label": "practising the sweep",
+  "img": "media/sb/f03.jpg"
+ },
+ {
+  "i": 4,
+  "t": 11.2,
+  "mark": "0:11.2",
+  "label": "close: proud head, hot beam",
+  "img": "media/sb/f04.jpg"
+ },
+ {
+  "i": 5,
+  "t": 14.6,
+  "mark": "0:14.6",
+  "label": "raking its own wall",
+  "img": "media/sb/f05.jpg"
+ },
+ {
+  "i": 6,
+  "t": 16.7,
+  "mark": "0:16.7",
+  "label": "the moth arrives",
+  "img": "media/sb/f06.jpg"
+ },
+ {
+  "i": 7,
+  "t": 19.6,
+  "mark": "0:19.6",
+  "label": "the lamp turns away",
+  "img": "media/sb/f07.jpg"
+ },
+ {
+  "i": 8,
+  "t": 22.4,
+  "mark": "0:22.4",
+  "label": "shake-off",
+  "img": "media/sb/f08.jpg"
+ },
+ {
+  "i": 9,
+  "t": 25.3,
+  "mark": "0:25.3",
+  "label": "deadpan: beam into the lens",
+  "img": "media/sb/f09.jpg"
+ },
+ {
+  "i": 10,
+  "t": 27.4,
+  "mark": "0:27.4",
+  "label": "click off \u2014 the huff",
+  "img": "media/sb/f10.jpg"
+ },
+ {
+  "i": 11,
+  "t": 30.4,
+  "mark": "0:30.4",
+  "label": "darkness, holding",
+  "img": "media/sb/f11.jpg"
+ },
+ {
+  "i": 12,
+  "t": 33.6,
+  "mark": "0:33.6",
+  "label": "moonlight, dead lamp",
+  "img": "media/sb/f12.jpg"
+ },
+ {
+  "i": 13,
+  "t": 37.6,
+  "mark": "0:37.6",
+  "label": "the moon catches the shade",
+  "img": "media/sb/f13.jpg"
+ },
+ {
+  "i": 14,
+  "t": 47.2,
+  "mark": "0:47.2",
+  "label": "the end card",
+  "img": "media/sb/f14.jpg"
+ }
+]

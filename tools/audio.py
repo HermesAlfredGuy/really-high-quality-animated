@@ -73,7 +73,7 @@ def click(strength=1.0, dark=1.0):
     x = noise(n) * np.exp(-np.linspace(0, 18, n))
     x = bp(x, 900 / dark, 5200 / dark)
     x += 0.5 * np.sin(2 * np.pi * 1750 * np.arange(n) / SR) * np.exp(-np.linspace(0, 60, n))
-    return x * 0.5 * strength
+    return x * 0.95 * strength
 
 
 def bonk(f=190, amp=0.4, dur=0.09):
@@ -139,7 +139,7 @@ for t0, t1, clip in seg:
     c = clip[:n].copy()
     if len(c) < n:
         c = np.pad(c, ((0, n - len(c)), (0, 0)))
-    c *= env(n, 0.02, 0.06)[:, None]
+    c *= env(n, 0.02, 1.1 if t1 >= 49.9 else 0.06)[:, None]
     place(bed, c, t0)
 
 # musical stop at 26.0: fade the tail of segment B, and the room tone carries the silence
@@ -173,7 +173,8 @@ bed *= duck[:, None]
 # ---------------------------------------------------------------- SFX
 sfx = np.zeros(N)
 
-place(sfx, click(1.0, 1.0), 3.0, 0.55)                     # CLICK ON
+place(sfx, click(1.0, 1.0), 3.0, 1.35)
+place(sfx, bonk(96, 0.5, 0.11), 3.0, 0.5)                     # CLICK ON
 # filament warm-up buzz
 n = int(0.55 * SR); t = np.arange(n) / SR
 buzz = (np.sin(2 * np.pi * 100 * t) * 0.4 + bp(noise(n), 2000, 7000) * 0.5) * np.linspace(0.5, 0, n) ** 1.5
@@ -191,15 +192,16 @@ for a, b in ((15.5, 24.6), (29.0, 29.9), (37.35, 39.62)):
         t0 += 0.5
 
 place(sfx, inhale(0.62, 0.13), 26.28, 1.0)                  # the huff
-place(sfx, click(1.5, 0.8), 27.0, 0.62)                     # CLICK OFF
-place(sfx, ping(2350, 0.14, 0.5), 27.12, 1.0)               # filament ping
+place(sfx, click(1.6, 0.8), 27.0, 1.55)
+place(sfx, bonk(82, 0.5, 0.16), 27.0, 0.55)                     # CLICK OFF
+place(sfx, ping(2350, 0.30, 0.55), 27.12, 1.0)               # filament ping
 place(sfx, ping(1980, 0.05, 0.3), 28.05, 1.0)
 place(sfx, chime((523.25, 783.99, 1046.5), 2.6, 0.055), 35.95, 1.0)   # the moon catches the shade
 place(sfx, whoosh(0.55, 0.07), 37.5, 1.0)                   # the moth crosses the beam
 place(sfx, ping(1560, 0.05, 0.7), 42.6, 1.0)
 
 # the click's dry switch also gets a tiny mechanical double-tick
-place(sfx, click(0.6, 1.3), 3.035, 0.25)
+place(sfx, click(0.7, 1.3), 3.035, 0.55)
 
 # ---------------------------------------------------------------- room tone
 rt = bp(noise(N), 60, 900) * 0.006
