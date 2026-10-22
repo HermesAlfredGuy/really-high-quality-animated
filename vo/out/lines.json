@@ -1,0 +1,51 @@
+[
+ {
+  "i": 0,
+  "text": "Every night, the little lamp practiced",
+  "cue": "warm",
+  "start": 0.25,
+  "end": 2.02
+ },
+ {
+  "i": 1,
+  "text": "being a lighthouse.",
+  "cue": "warm",
+  "start": 2.42,
+  "end": 3.36
+ },
+ {
+  "i": 2,
+  "text": "The moth had other ideas.",
+  "cue": "",
+  "start": 4.31,
+  "end": 5.47
+ },
+ {
+  "i": 3,
+  "text": "So the little lighthouse",
+  "cue": "soft",
+  "start": 6.42,
+  "end": 8.33
+ },
+ {
+  "i": 4,
+  "text": "switched itself off.",
+  "cue": "soft",
+  "start": 9.13,
+  "end": 10.36
+ },
+ {
+  "i": 5,
+  "text": "Some lights",
+  "cue": "warm",
+  "start": 11.31,
+  "end": 12.08
+ },
+ {
+  "i": 6,
+  "text": "you only have to borrow.",
+  "cue": "warm",
+  "start": 12.48,
+  "end": 13.58
+ }
+]

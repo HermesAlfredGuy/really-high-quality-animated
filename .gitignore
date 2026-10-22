@@ -1,0 +1,5 @@
+node_modules
+page/out
+out/*.mp4
+out/*.wav
+/tmp
