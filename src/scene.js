@@ -85,14 +85,17 @@ function lampState(t) {
     [50, 0],
   ]);
   const faceMix = K(t, [[0, 0], [24.92, 0], [25.22, 1, 'out3'], [25.84, 1], [25.99, 0, 'in2'], [50, 0]]);
-  const shake = t > 21.3 && t < 22.1 ? Math.sin((t - 21.3) * 46) * (1 - (t - 21.3) / 0.8) * 9 : 0;
+  // the shake-off: a violent, decaying rattle with its own overshoot, not a quiver
+  const shakeEnv = K(t, [[0, 0], [21.22, 0], [21.38, 1, 'lin'], [22.55, 0.9], [23.15, 0.28], [23.6, 0], [50, 0]]);
+  const shake = Math.sin((t - 21.22) * 54) * shakeEnv * 27;
+  const shakeY = Math.cos((t - 21.22) * 49) * shakeEnv * 8;
   const squash = K(t, [[0, 1], [3.0, 1], [3.2, 0.9], [3.5, 1.02], [3.8, 1], [26.9, 1], [27.05, 0.86], [27.5, 0.94], [28.2, 0.91], [33.6, 0.95], [36.2, 1], [50, 1]]);
   const lean = K(t, [[0, 0], [0.4, 0], [1.55, 7, 'io2'], [2.2, 6], [2.8, 0, 'io3'], [3.4, 0], [9.6, 2], [13.2, 0], [17.2, -7], [19.4, 5], [21.4, -3], [26.1, 0], [27.2, 8], [31.0, 10], [34.6, 2], [36.6, 1], [50, 0]]);
   const beatBounce = (t > 3.1 && t < 26.2) || t > 32 ? Math.max(0, Math.sin(t * Math.PI * 2)) * 2.6 : 0;
   const slump = K(t, [[0, 0], [26.2, 0], [27.35, 22, 'out2'], [28.7, 33], [31.4, 34], [34.4, 9, 'io2'], [36.4, 2], [50, 0]]);
   return {
-    hop: hop - beatBounce - slump, shadeAng, bright, faceMix, shake, squash: squash * (1 + beatBounce * 0.004), lean,
-    baseX: LX + shake * 0.4, px: LX + lean, py: BASEY + hop - PIVH,
+    hop: hop - beatBounce - slump - Math.abs(shakeY) * 0.25, shadeAng: shadeAng + Math.sin((t - 21.22) * 66) * shakeEnv * 0.36, bright, faceMix, shake, squash: squash * (1 + beatBounce * 0.004), lean,
+    baseX: LX + shake * 0.5, px: LX + lean, py: BASEY + hop - PIVH,
     ember: K(t, [[0, 0], [26.99, 0], [27.03, 1], [28.5, 0.45], [29.2, 0], [50, 0]]),
     moonIn: K(t, [[0, 0], [35.9, 0], [37.1, 1, 'io2'], [38.6, 0.75], [41.0, 0.7], [43.5, 0.85], [50, 0.8]]),
   };
@@ -136,17 +139,21 @@ function mothState(t) {
 function camera(t) {
   const shots = [
     [0.0, 2.6, 1.24, 1150, 486, 1096, 500],
-    [2.6, 10.0, 1.0, 944, 608, 952, 596],
-    [10.0, 14.0, 1.92, 690, 568, 704, 556],
+    [2.6, 8.4, 1.0, 944, 608, 950, 598],
+    [8.4, 12.4, 1.92, 690, 568, 704, 556],
+    [12.4, 14.0, 1.42, 900, 600, 884, 592],
     [14.0, 16.0, 3.20, 376, 288, 384, 296],
-    [16.0, 18.0, 1.5, 748, 566, 734, 552],
-    [18.0, 20.0, 2.08, 708, 536, 702, 528],
-    [20.0, 22.0, 1.95, 726, 492, 742, 512],
-    [22.0, 26.0, 2.18, 716, 552, 712, 542],
+    [16.0, 17.7, 1.06, 1004, 602, 984, 596],
+    [17.7, 19.1, 3.05, 700, 486, 690, 480],
+    [19.1, 20.6, 1.28, 806, 664, 824, 652],
+    [20.6, 22.0, 3.55, 700, 520, 706, 514],
+    [22.0, 23.5, 2.75, 704, 526, 694, 518],
+    [23.5, 26.0, 1.62, 720, 560, 712, 550],
     [26.0, 31.0, 1.7, 700, 598, 696, 588],
     [31.0, 36.0, 1.0, 956, 606, 962, 598],
     [36.0, 40.0, 1.84, 758, 536, 738, 526],
-    [40.0, 50.0, 1.0, 936, 606, 988, 590],
+    [40.0, 47.2, 1.0, 936, 606, 976, 594],
+    [47.2, 50.0, 1.46, 880, 566, 830, 548],
   ];
   let s = null;
   for (const sh of shots) if (t >= sh[0] && t < sh[1]) s = sh;
@@ -229,6 +236,7 @@ function drawPicture(c, s, sd) {
   const { x0, y0, x1, y1 } = PICT;
   const b = 14;
   const inner = rectPts(x0 + b, y0 + b, x1 - x0 - 2 * b, y1 - y0 - 2 * b);
+  fillShape(c, rectPts(x0 + 9, y0 + 13, x1 - x0, y1 - y0), 'rgba(10,18,24,0.42)', { seed: sd + 69, amp: 2.4 });
   fillShape(c, rectPts(x0, y0, x1 - x0, y1 - y0), '#453326', { seed: sd + 70, amp: 1.4, dx: 2, dy: 3 });
   fillShape(c, inner, '#c9b48a', { seed: sd + 71, amp: 1.6 });
   const ix0 = x0 + b, iy0 = y0 + b, iw = x1 - x0 - 2 * b, ih = y1 - y0 - 2 * b;
@@ -597,8 +605,14 @@ function drawSteam(c, s, sd) {
     const d = Math.hypot(pts[8][0] - mx, pts[8][1] - my);
     const warm = clamp(1 - d / 420, 0, 1) * Math.min(1, L.bright);
     const a = 0.16 + 0.34 * warm;
-    inkStroke(c, pts, { seed: sd + 320 + k, w: 7 + 5 * warm, amp: 1.6, t0: 12, t1: 12,
-      color: warm > 0.25 ? `rgba(255,232,190,${a + 0.16})` : `rgba(190,214,222,${a * 0.85})`, dense: true, heavy: 0.1 });
+    const col = warm > 0.25 ? `rgba(255,232,190,${a + 0.16})` : `rgba(190,214,222,${a * 0.85})`;
+    // three tapered segments: thick at the rim, a thread at the top
+    for (let seg = 0; seg < 3; seg++) {
+      const i0 = Math.round(seg * 5.3), i1 = Math.round((seg + 1) * 5.3) + 1;
+      inkStroke(c, pts.slice(i0, Math.min(pts.length, i1)), {
+        seed: sd + 320 + k * 3 + seg, w: (8.5 - seg * 2.4) + 4 * warm, amp: 1.4, t0: 12, t1: 12,
+        color: col, dense: true, heavy: 0.1 });
+    }
   }
 }
 
@@ -721,6 +735,17 @@ function blowOut(c, s, sd) {
   c.setTransform(1, 0, 0, 1, 0, 0);
   c.fillStyle = `rgba(255,247,226,${0.72 * k})`;
   c.fillRect(0, 0, W, H);
+  // veiling glare: a hot centre that falls off in flat cel steps
+  const gl = c.createRadialGradient(W / 2, H / 2, 40, W / 2, H / 2, W * 0.72);
+  gl.addColorStop(0, `rgba(255,252,242,${0.85 * k})`);
+  gl.addColorStop(0.45, `rgba(255,244,214,${0.45 * k})`);
+  gl.addColorStop(1, `rgba(240,214,170,${0.10 * k})`);
+  c.fillStyle = gl; c.fillRect(0, 0, W, H);
+  // crush the corners so the blast has an edge to push against
+  const vg = c.createRadialGradient(W / 2, H / 2, W * 0.34, W / 2, H / 2, W * 0.78);
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, `rgba(58,34,14,${0.42 * k})`);
+  c.fillStyle = vg; c.fillRect(0, 0, W, H);
   const { s: z, x, y } = s.cam;
   c.setTransform(z, 0, 0, z, W / 2 - x * z, H / 2 - y * z);
   // hot core + a few radial ink ticks: the classic cel "light in the lens"
@@ -769,6 +794,20 @@ function drawTitle(c, s, sd) {
   c.font = '500 15px "Plex Mono"'; c.letterSpacing = '5px';
   c.fillStyle = 'rgba(244,233,208,0.78)'; c.textAlign = 'center';
   c.fillText('MUSIC · MUSIC FOR CREATORS · CC BY 4.0', cx + 3, cy + 96);
+  // an underline drawn on with the same hand
+  const ul = K(t, [[46.15, 0], [46.95, 1, 'io2'], [50, 1]]);
+  if (ul > 0.01) {
+    inkStroke(c, [[cx - 330, cy + 136], [cx - 330 + 660 * ul, cy + 136]], {
+      seed: sd + 460, w: 3.4, amp: 1.2, color: 'rgba(244,233,208,0.55)', t0: 30, t1: 30 });
+  }
+  // paper motes drifting through the end card, on ones like everything else
+  for (let i = 0; i < 12; i++) {
+    const ph = hs(i, 91);
+    const px2 = ((hs(i, 71) * W + t * (5 + ph * 14)) % (W + 80)) - 40;
+    const py2 = 120 + ((hs(i, 73) * 760 + Math.sin(t * 0.6 + ph * 6) * 26 + t * 7 * ph) % 620);
+    const r2 = 1.4 + ph * 2.6;
+    fillShape(c, circlePts(px2, py2, r2, 0, r2), `rgba(248,238,214,${0.10 + ph * 0.22})`, { seed: sd + 470 + i, amp: 1.1 });
+  }
   c.restore();
 }
 
@@ -842,6 +881,7 @@ function drawFrame(t) {
   drawMoth(ctx, s, sd);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   paperFinish(ctx);
+  if (s.t >= 48.35) { ctx.fillStyle = '#0d0a07'; ctx.fillRect(0, 0, W, H); }
   drawTitle(ctx, s, sd);
 }
 

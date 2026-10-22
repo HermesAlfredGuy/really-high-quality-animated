@@ -132,27 +132,37 @@
 
   .prose { margin: 44px auto 0; max-width: 62ch; }
   .prose p { font-size: clamp(17px, 2.1vw, 20.5px); line-height: 1.58; color: #3a2b20; margin: 0 0 1.05em; }
-  .prose p:first-child::first-letter {
+  .prose .kicker {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--warm); margin: 0 0 12px;
+  }
+  .prose .kicker::first-letter { font-size: inherit; float: none; padding: 0; color: inherit; }
+  .prose p.lead::first-letter {
     float: left; font-size: 3.6em; line-height: .82; padding: .06em .1em 0 0; color: var(--ember); font-weight: 600;
   }
   .prose em { font-style: italic; }
+  .prose code { font-family: var(--mono); font-size: .82em; letter-spacing: .02em; background: rgba(36,26,21,.06); padding: 1px 5px; }
   .prose a { color: var(--ember); text-decoration: none; border-bottom: 1px solid rgba(168,56,31,.45); }
 
   /* ── storyboard: real cells, real captions, click one to jump the film ── */
   .strip { margin: 46px 0 0; }
   .strip h2 { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--warm); margin: 0 0 4px; font-weight: 500; }
   .strip .hint { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; color: #6a5340; margin: 0 0 14px; }
-  .sb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 14px; }
+  .sb { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 14px; }
+  .sb .cell:nth-child(9), .sb .cell:nth-child(10) { grid-column: span 2; }
   .sb .cell {
     display: block; padding: 0; border: 0; background: none; cursor: pointer; text-align: left;
     font: inherit; color: inherit;
   }
   .sb .cell img {
-    display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
+    display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
     border: 1.5px solid rgba(36,26,21,.55); background: var(--night);
     transition: transform .25s cubic-bezier(.2,.9,.25,1), border-color .2s ease;
   }
   .sb .cell:hover img, .sb .cell:focus-visible img { transform: translateY(-2px); border-color: var(--ink); }
+  .sb .cell[aria-current="true"] img { border-color: var(--ember); box-shadow: 0 0 0 1px var(--ember); }
+  .sb .cell[aria-current="true"] .mark { color: var(--ink); }
+  .sb .cell[aria-current="true"] .label { color: var(--ember); }
   .sb .cell:focus-visible { outline: 2px solid var(--warm); outline-offset: 3px; }
   .sb .mark {
     display: block; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em;
@@ -242,8 +252,9 @@
   </div>
 
   <div class="prose">
-    <p class="rise">It is a small film about a small light. The lamp has no face: it acts with its posture, the angle of its shade and the shape of the beam, the way a good lamp does. It practises its sweep at night, gets heckled by a moth, switches itself off in a huff — and then notices that the room was never dark to begin with.</p>
-    <p class="rise">Everything you see is drawn by <em>src/scene.js</em>: the room, the brass, the window, the moon, the moth, the dust and the light. The film is 1,200 frames, each one a pure function of time, so any frame can be re-rendered exactly — the title card included.</p>
+    <p class="kicker rise">A note on the making</p>
+    <p class="lead rise">It is a small film about a small light. The lamp has no face: it acts with its posture, the angle of its shade and the shape of the beam, the way a good lamp does. It practises its sweep at night, gets heckled by a moth, switches itself off in a huff — and then notices that the room was never dark to begin with.</p>
+    <p class="rise">Everything you see is drawn by <code>src/scene.js</code>: the room, the brass, the window, the moon, the moth, the dust and the light. The film is 1,200 frames, each one a pure function of time, so any frame can be re-rendered exactly — the title card included.</p>
   </div>
 
   <div class="strip">
@@ -345,6 +356,7 @@
   const tc = document.getElementById('tc');
   const fs = document.getElementById('fs');
 
+  const cellsNow = [...document.querySelectorAll('#sb .cell')];
   const PLAY = 'M8 5.5v13l11-6.5z';
   const PAUSE = 'M7 5h4v14H7zm6 0h4v14h-4z';
   const DUR = 50;
@@ -364,6 +376,12 @@
     pp.setAttribute('aria-label', paused ? 'Play' : 'Pause');
     ppIcon.innerHTML = '<path d="' + (paused ? PLAY : PAUSE) + '"/>';
     player.classList.toggle('paused', paused);
+    if (cellsNow.length) {
+      const t = v.currentTime || 0;
+      let idx = -1;
+      cellsNow.forEach((c, i) => { if (t + 0.05 >= parseFloat(c.dataset.t)) idx = i; });
+      cellsNow.forEach((c, i) => c.setAttribute('aria-current', i === idx ? 'true' : 'false'));
+    }
     player.classList.toggle('playing', !paused);
   };
   const toggle = () => { if (v.paused) v.play().catch(() => {}); else v.pause(); };

@@ -168,6 +168,11 @@ for s, e, at in vo_lines:
     duck[a:b] = np.minimum(duck[a:b], 0.42)
 k = int(0.14 * SR)
 duck = np.convolve(duck, np.hanning(k) / np.hanning(k).sum(), mode='same')
+for s0, s1 in ((24.3, 25.6),):
+    a, b = int(s0 * SR), min(N, int(s1 * SR))
+    duck[a:b] = np.minimum(duck[a:b], 0.55)
+k = int(0.10 * SR)
+duck = np.convolve(duck, np.hanning(k) / np.hanning(k).sum(), mode='same')
 bed *= duck[:, None]
 
 # ---------------------------------------------------------------- SFX
@@ -191,6 +196,18 @@ for a, b in ((15.5, 24.6), (29.0, 29.9), (37.35, 39.62)):
         place(sfx, flutter(min(0.5, b - t0), 0.05, 13), t0, 1.0)
         t0 += 0.5
 
+# the blast: riser from 24.35 into 24.94, hard hit on the frame, low bloom under it
+n = int(0.62 * SR); tt = np.arange(n) / SR
+ris = (bp(noise(n), 900, 5200) * 0.5 + np.sin(2 * np.pi * (420 + 1500 * tt / 0.62) * tt) * 0.22)
+ris *= (tt / 0.62) ** 2.2
+place(sfx, ris, 24.33, 0.5)
+place(sfx, click(1.9, 0.55), 24.94, 1.7)                    # the switch of light itself
+place(sfx, bonk(58, 0.5, 0.42), 24.96, 0.95)                 # the body of the hit
+place(sfx, ping(3100, 0.13, 0.9), 25.0, 1.0)                 # the filament
+n = int(1.1 * SR); tt = np.arange(n) / SR
+bloom = (np.sin(2 * np.pi * 74 * tt) * 0.5 + np.sin(2 * np.pi * 111 * tt) * 0.3) * np.exp(-tt * 3.4)
+place(sfx, bloom, 24.97, 0.7)                                # the low bloom under the blast
+
 place(sfx, inhale(0.62, 0.13), 26.28, 1.0)                  # the huff
 place(sfx, click(1.6, 0.8), 27.0, 1.55)
 place(sfx, bonk(82, 0.5, 0.16), 27.0, 0.55)                     # CLICK OFF
@@ -199,6 +216,8 @@ place(sfx, ping(1980, 0.05, 0.3), 28.05, 1.0)
 place(sfx, chime((523.25, 783.99, 1046.5), 2.6, 0.055), 35.95, 1.0)   # the moon catches the shade
 place(sfx, whoosh(0.55, 0.07), 37.5, 1.0)                   # the moth crosses the beam
 place(sfx, ping(1560, 0.05, 0.7), 42.6, 1.0)
+place(sfx, ping(2470, 0.16, 1.35), 48.38, 1.0)               # the button: filament ping on the cut
+place(sfx, bonk(72, 0.5, 0.3), 48.37, 0.4)
 
 # the click's dry switch also gets a tiny mechanical double-tick
 place(sfx, click(0.7, 1.3), 3.035, 0.55)
